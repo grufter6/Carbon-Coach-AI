@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Carbon Coach — Sign In</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --sky: #eef3ee;
+    --paper: #f7f5ef;
+    --moss: #2f4a3a;
+    --moss-light: #4d6f57;
+    --ink: #23291f;
+    --line: #d8d4c6;
+    --bad: #b5462f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sky);
+    color: var(--ink);
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+  }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+    transition: max-width 0.2s ease;
+  }
+  .card.wide { max-width: 460px; }
+
+  #setup { display: none; text-align: left; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  #setup .miniProfile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #setup .miniProfile img { width: 36px; height: 36px; border-radius: 50%; }
+  #setup .miniProfile .name { font-weight: 700; color: var(--moss); font-size: 14px; }
+  #setup .miniProfile .email { font-size: 12px; color: var(--moss-light); }
+  #setup h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--moss);
+    margin: 18px 0 8px;
+  }
+  #setup h3:first-of-type { margin-top: 0; }
+  .optRow { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .optRow label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 7px 12px;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-bottom: 0;
+  }
+  .optRow input { margin: 0; accent-color: var(--moss); }
+  .optRow label:has(input:checked) { border-color: var(--moss); background: #e9f0e5; }
+  #setup .fieldHint {
+    font-size: 11px;
+    color: var(--moss-light);
+    margin: 2px 0 0;
+  }
+  #setup button.primary {
+    width: 100%;
+    margin-top: 22px;
+    padding: 12px;
+  }
+  #setup .privacyNote {
+    font-size: 11px;
+    color: var(--moss-light);
+    background: #e9f0e5;
+    border-radius: 3px;
+    padding: 10px 12px;
+    margin-top: 16px;
+  }
+  #savedMsg {
+    display: none;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--moss);
+    text-align: center;
+  }
+  #savedMsg .big { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  h1 {
+    font-size: 26px;
+    margin: 0 0 4px;
+    color: var(--moss);
+  }
+  p.sub {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--moss-light);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 26px;
+  }
+  #gBtn { display: flex; justify-content: center; margin-bottom: 14px; }
+  #profile { display: none; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  #profile img { width: 56px; height: 56px; border-radius: 50%; margin-bottom: 10px; }
+  #profile .name { font-weight: 700; color: var(--moss); font-size: 16px; }
+  #profile .email { font-size: 13px; color: var(--moss-light); margin-bottom: 16px; }
+  .msg {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12px;
+    color: var(--bad);
+    margin-top: 12px;
+    display: none;
+  }
+  .note {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11px;
+    color: var(--moss-light);
+    background: #e9f0e5;
+    border-radius: 3px;
+    padding: 10px 12px;
+    margin-top: 20px;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <h1 class="display">Carbon Coach</h1>
+  <p class="sub">Sign in to continue</p>
+
+  <div id="gBtn"></div>
+
+  <div id="profile" style="display:none;"></div>
+
+  <form id="setup" onsubmit="saveProfile(event)">
+    <div class="miniProfile">
+      <img id="pfPic" src="" alt="">
+      <div>
+        <div class="name" id="pfName"></div>
+        <div class="email" id="pfEmail"></div>
+      </div>
+    </div>
+
+    <h3>Do you have a bike?</h3>
+    <div class="optRow" id="bikeOpts">
+      <label><input type="radio" name="bike" value="none" checked> No bike</label>
+      <label><input type="radio" name="bike" value="regular"> Regular bike</label>
+      <label><input type="radio" name="bike" value="ebike"> E-bike</label>
+    </div>
+    <p class="fieldHint">If you don't have a bike, we won't recommend biking — even when it scores well.</p>
+
+    <h3>Public transit near you?</h3>
+    <div class="optRow">
+      <label><input type="radio" name="transit" value="yes" checked> Yes, it's an option</label>
+      <label><input type="radio" name="transit" value="no"> Not really</label>
+    </div>
+
+    <h3>Anything we should be cautious about?</h3>
+    <div class="optRow" id="sensOpts">
+      <label><input type="checkbox" name="sens" value="airQuality"> Prefer to avoid poor air quality</label>
+      <label><input type="checkbox" name="sens" value="heat"> Prefer to avoid heat</label>
+    </div>
+    <p class="fieldHint">Self-reported preference only — we use this to weigh recommendations, not to diagnose anything.</p>
+
+    <h3>Extra time you're OK with vs. driving</h3>
+    <div class="optRow">
+      <label><input type="radio" name="timeTol" value="10"> Up to 10 min</label>
+      <label><input type="radio" name="timeTol" value="20" checked> Up to 20 min</label>
+      <label><input type="radio" name="timeTol" value="40"> Up to 40 min</label>
+    </div>
+
+    <button type="submit" class="primary">Save & continue</button>
+
+    <div class="privacyNote">
+      This stays on your device only — it's not sent anywhere or
+      shared with employers, insurers, or anyone else.
+    </div>
+  </form>
+
+  <div id="savedMsg">
+    <div class="big">You're all set, <span id="savedName"></span> 🌱</div>
+    Your preferences are saved on this device.
+    <button type="button" onclick="editProfile()" style="margin-top:14px;background:transparent;border:1px solid var(--moss);color:var(--moss);padding:8px 16px;border-radius:3px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;cursor:pointer;">Edit preferences</button>
+    <button type="button" onclick="signOut()" style="margin-top:14px;margin-left:8px;background:transparent;border:1px solid var(--line);color:var(--moss-light);padding:8px 16px;border-radius:3px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;cursor:pointer;">Sign out</button>
+  </div>
+
+  <div class="msg" id="errMsg"></div>
+
+  <div class="note" id="setupNote">
+    This button won't render until you drop in a real Google
+    Client ID below — see the setup steps in chat.
+  </div>
+</div>
+
+<script>
+  // ⚠️ Replace with your own OAuth Client ID from Google Cloud Console.
+  const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+
+  let currentUser = null; // { name, email, picture }
+
+  function profileKey(email) { return 'carbonCoachProfile_' + email; }
+
+  function handleCredentialResponse(response) {
+    try {
+      // The credential is a JWT (ID token). We decode it client-side just
+      // to display who's signed in — this is NOT secure verification.
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      currentUser = { name: payload.name, email: payload.email, picture: payload.picture };
+
+      document.getElementById('gBtn').style.display = 'none';
+      document.getElementById('setupNote').style.display = 'none';
+      document.getElementById('card').classList.add('wide');
+      document.getElementById('pfPic').src = payload.picture;
+      document.getElementById('pfName').textContent = payload.name;
+      document.getElementById('pfEmail').textContent = payload.email;
+
+      const existing = localStorage.getItem(profileKey(payload.email));
+      if (existing) {
+        showSavedState(payload.name);
+      } else {
+        document.getElementById('setup').style.display = 'block';
+      }
+    } catch (e) {
+      const err = document.getElementById('errMsg');
+      err.textContent = "Sign-in failed to parse response.";
+      err.style.display = 'block';
+    }
+  }
+
+  function saveProfile(event) {
+    event.preventDefault();
+    if (!currentUser) return;
+    const form = event.target;
+    const sensBoxes = Array.from(form.querySelectorAll('input[name="sens"]:checked')).map(el => el.value);
+
+    const prefs = {
+      name: currentUser.name,
+      email: currentUser.email,
+      bike: form.querySelector('input[name="bike"]:checked').value,
+      transit: form.querySelector('input[name="transit"]:checked').value,
+      sensitivities: sensBoxes,
+      timeTolMinutes: Number(form.querySelector('input[name="timeTol"]:checked').value),
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(profileKey(currentUser.email), JSON.stringify(prefs));
+    showSavedState(currentUser.name);
+  }
+
+  function showSavedState(name) {
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('savedName').textContent = name.split(' ')[0];
+    document.getElementById('savedMsg').style.display = 'block';
+  }
+
+  function editProfile() {
+    if (!currentUser) return;
+    const saved = localStorage.getItem(profileKey(currentUser.email));
+    const prefs = saved ? JSON.parse(saved) : null;
+    if (prefs) {
+      document.querySelector(`input[name="bike"][value="${prefs.bike}"]`).checked = true;
+      document.querySelector(`input[name="transit"][value="${prefs.transit}"]`).checked = true;
+      document.querySelector(`input[name="timeTol"][value="${prefs.timeTolMinutes}"]`).checked = true;
+      document.querySelectorAll('input[name="sens"]').forEach(el => {
+        el.checked = prefs.sensitivities.includes(el.value);
+      });
+    }
+    document.getElementById('savedMsg').style.display = 'none';
+    document.getElementById('setup').style.display = 'block';
+  }
+
+  function signOut() {
+    google.accounts.id.disableAutoSelect();
+    currentUser = null;
+    document.getElementById('card').classList.remove('wide');
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('savedMsg').style.display = 'none';
+    document.getElementById('setupNote').style.display = 'block';
+    document.getElementById('gBtn').style.display = 'flex';
+  }
+
+  window.onload = function () {
+    if (GOOGLE_CLIENT_ID.startsWith("YOUR_")) {
+      document.getElementById('errMsg').textContent =
+        "No Client ID configured yet — see setup steps.";
+      document.getElementById('errMsg').style.display = 'block';
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: = "240764457745-80tnpb0egt46mpikbvqbm5etd7krubc6.apps.googleusercontent.com",
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('gBtn'),
+      { theme: "outline", size: "large", shape: "pill" }
+    );
+  };
+</script>
+
+</body>
+</html>
