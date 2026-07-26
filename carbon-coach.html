@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carbon Coach AI — Smart coaching. Lower carbon. Better planet.</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEEFE4;
+    --paper-dim:#E4E6D8;
+    --white:#FFFFFF;
+    --ink:#14201A;
+    --ink-soft:#3B473F;
+    --forest:#1F3B2E;
+    --forest-deep:#0F1D16;
+    --sage:#6E9B7B;
+    --sky:#8FB6CC;
+    --good:#4C9A5E;
+    --moderate:#C99A3E;
+    --poor:#C4713A;
+    --line: rgba(20,32,26,0.13);
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --shadow: 0 20px 44px -26px rgba(15,29,22,0.28);
+    --bg-blob-1: rgba(76,154,94,0.22);
+    --bg-blob-2: rgba(143,182,204,0.26);
+    --bg-blob-3: rgba(201,154,62,0.14);
+  }
+
+  :root[data-theme="dark"]{
+    --paper:#0B120E;
+    --paper-dim:#141D18;
+    --white:#161F1A;
+    --ink:#EAF0E6;
+    --ink-soft:#93A99B;
+    --forest:#3D7A57;
+    --forest-deep:#0A1310;
+    --sage:#7FC496;
+    --sky:#7FB2CF;
+    --good:#5FCB80;
+    --moderate:#E3B558;
+    --poor:#E08659;
+    --line: rgba(234,240,230,0.12);
+    --shadow: 0 20px 44px -22px rgba(0,0,0,0.55);
+    --bg-blob-1: rgba(95,203,128,0.16);
+    --bg-blob-2: rgba(127,178,207,0.16);
+    --bg-blob-3: rgba(227,181,88,0.10);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;color:var(--ink);font-family:var(--body);
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(900px 520px at 8% -8%, var(--bg-blob-1), transparent 60%),
+      radial-gradient(800px 480px at 96% 8%, var(--bg-blob-2), transparent 55%),
+      radial-gradient(700px 500px at 50% 110%, var(--bg-blob-3), transparent 60%);
+    background-attachment:fixed;
+    transition:background-color .3s ease, color .3s ease;
+  }
+  a{color:inherit;}
+  ul{margin:0;padding:0;}
+  button{font-family:inherit;cursor:pointer;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  .icon{width:15px;height:15px;flex-shrink:0;}
+  .icon-lg{width:20px;height:20px;}
+
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none;} }
+
+  /* ================= HEADER ================= */
+  header.app-bar{
+    position:sticky;top:0;z-index:60;
+    background:rgba(238,239,228,0.92);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .app-bar-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:24px;}
+  .brand{display:flex;align-items:center;gap:11px;flex-shrink:0;}
+  .brand .logo-mark{width:38px;height:38px;flex-shrink:0;}
+  .brand .word{line-height:1.1;}
+  .brand .word b{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-0.01em;display:block;}
+  .brand .word span{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--sage);}
+
+  .tabs{display:flex;gap:3px;background:var(--paper-dim);padding:4px;border-radius:100px;position:relative;}
+  .tab-indicator{
+    position:absolute;top:4px;bottom:4px;left:4px;border-radius:100px;background:var(--forest);
+    transition:left .32s cubic-bezier(.4,0,.2,1), width .32s cubic-bezier(.4,0,.2,1);z-index:0;
+  }
+  .tabs button{
+    font-size:13px;font-weight:600;color:var(--ink-soft);text-decoration:none;
+    padding:8px 15px;border-radius:100px;display:flex;align-items:center;gap:7px;
+    background:none;border:none;position:relative;z-index:1;transition:color .2s ease;
+  }
+  .tabs button.active{color:var(--paper);}
+  .gear-btn{
+    width:38px;height:38px;border-radius:50%;background:var(--paper-dim);flex-shrink:0;border:none;
+    display:flex;align-items:center;justify-content:center;color:var(--ink-soft);
+  }
+  @media (max-width:860px){ .tabs{display:none;} }
+
+  /* ================= DASHBOARD ================= */
+  .dash{padding:40px 0 76px;}
+  .greet-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+  .greet-row h1{font-family:var(--display);font-weight:700;font-size:clamp(24px,3vw,32px);margin:0;letter-spacing:-0.01em;}
+  .greet-row .sub{color:var(--ink-soft);font-size:14.5px;margin-top:4px;}
+  .greet-date{font-family:var(--mono);font-size:12px;color:var(--sage);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;}
+
+  .dash-grid{display:grid;grid-template-columns:1.65fr 1fr;gap:22px;align-items:start;}
+  @media (max-width:900px){ .dash-grid{grid-template-columns:1fr;} }
+
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .panel-head h3{margin:0;font-family:var(--display);font-size:15px;font-weight:600;}
+  .panel-head a{font-size:12px;color:var(--sage);font-weight:600;text-decoration:none;display:flex;align-items:center;gap:4px;}
+
+  .rec-card{
+    background:linear-gradient(155deg, var(--forest), var(--forest-deep) 85%);
+    color:var(--paper);border-radius:18px;padding:30px;position:relative;overflow:hidden;margin-bottom:20px;
+    box-shadow:var(--shadow);
+  }
+  .rec-card::after{content:"";position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle, rgba(143,182,204,0.22), transparent 70%);}
+  .rec-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1;}
+  .rec-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.68;margin-bottom:10px;}
+  .rec-icon-circle{width:50px;height:50px;border-radius:14px;background:rgba(238,239,228,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .rec-icon-circle svg{width:24px;height:24px;}
+  .rec-title{font-family:var(--display);font-size:clamp(22px,2.8vw,30px);font-weight:700;margin:4px 0 8px;position:relative;z-index:1;}
+  .rec-title b{color:var(--moderate);font-weight:700;}
+  .rec-why{font-size:14px;opacity:.8;line-height:1.5;margin-bottom:22px;max-width:400px;position:relative;z-index:1;}
+  .rec-chips{display:flex;gap:30px;position:relative;z-index:1;flex-wrap:wrap;}
+  .rec-chips div{display:flex;flex-direction:column;gap:4px;}
+  .rec-chips .lbl{font-size:11px;opacity:.65;display:flex;align-items:center;gap:5px;}
+  .rec-chips b{font-family:var(--mono);font-size:18px;font-weight:600;}
+
+  .score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px;}
+  .score-tile{border:1px solid var(--line);border-radius:13px;padding:15px 8px;text-align:center;}
+  .score-tile .num{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--ink);}
+  .score-tile .of100{font-size:10.5px;color:var(--ink-soft);}
+  .score-tile .mode-name{font-family:var(--display);font-size:13px;font-weight:600;margin-top:4px;}
+  .score-tile .tag{display:block;margin-top:6px;font-size:10px;font-weight:600;color:var(--ink-soft);}
+  .score-tile.top{border-color:var(--good);background:rgba(76,154,94,0.06);}
+  .score-tile.top .num,.score-tile.top .of100,.score-tile.top .tag{color:var(--good);}
+  .score-tile.low .tag{color:var(--poor);}
+  .score-tile{
+    font-family:var(--body);width:100%;background:#fff;
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .score-tile:hover{transform:translateY(-2px);box-shadow:0 10px 20px -12px rgba(15,29,22,0.25);}
+  .score-tile:focus-visible{outline:2px solid var(--forest);outline-offset:2px;}
+  .score-tile.selected{border-color:var(--forest);box-shadow:0 0 0 2px var(--forest) inset;}
+
+  .why-card{border-radius:14px;background:rgba(76,154,94,0.07);border:1px solid rgba(76,154,94,0.2);padding:18px 20px;transition:background .2s ease, border-color .2s ease;}
+  .why-card h4{margin:0 0 14px;font-family:var(--display);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;}
+  .why-card ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .why-card li{font-size:13.5px;color:var(--ink-soft);display:flex;align-items:flex-start;gap:8px;line-height:1.45;}
+  .why-card li svg{color:var(--good);flex-shrink:0;margin-top:2px;}
+  .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+  @media (max-width:520px){ .pros-cons{grid-template-columns:1fr;} }
+  .pc-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;display:block;margin-bottom:9px;}
+  .pc-good{color:var(--good);}
+  .pc-bad{color:var(--poor);}
+  .pc-col .pc-bad ~ ul li svg,
+  #consList li svg{color:var(--poor);}
+
+  .side-col{display:flex;flex-direction:column;gap:18px;}
+  .impact-tiles{display:flex;flex-direction:column;gap:11px;}
+  .impact-tile{border:1px solid var(--line);border-radius:14px;padding:15px 17px;}
+  .impact-tile .row1{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+  .impact-tile b{font-family:var(--mono);font-size:22px;display:block;margin-top:6px;}
+  .impact-tile .foot{font-size:11px;color:var(--sage);margin-top:4px;display:block;}
+  .impact-tile .bar{height:6px;border-radius:100px;background:var(--paper-dim);margin-top:10px;overflow:hidden;}
+  .impact-tile .bar span{display:block;height:100%;width:0;background:var(--good);border-radius:100px;transition:width 1.2s ease;}
+
+  .lb-item{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:11px;}
+  .lb-item.me{background:rgba(76,154,94,0.09);}
+  .lb-rank{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);width:16px;}
+  .lb-avatar{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#fff;background:var(--sky);flex-shrink:0;}
+  .lb-item.me .lb-avatar{background:var(--good);}
+  .lb-name{flex:1;font-size:13px;font-weight:600;}
+  .lb-pts{font-family:var(--mono);font-size:12px;color:var(--ink-soft);}
+  .lb-item.me .lb-pts{color:var(--ink);font-weight:700;}
+  .prize-note{margin-top:10px;padding-top:13px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft);}
+  .prize-note b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:6px;}
+  .prize-note .items{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+  .prize-note .items span{background:var(--paper-dim);padding:4px 10px;border-radius:100px;font-size:10.5px;}
+
+  /* ================= PAGE SWITCHING ================= */
+  .page{display:none;}
+  .page.active{display:block;}
+
+  /* weekly chart */
+  .chart-row{display:flex;align-items:flex-end;gap:14px;height:150px;padding-top:10px;}
+  .chart-bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:8px;}
+  .chart-bar span{
+    width:100%;max-width:34px;border-radius:8px 8px 4px 4px;background:var(--sage);height:0;
+    transition:height 1s cubic-bezier(.2,.8,.2,1);
+  }
+  .chart-bar.top span{background:var(--good);}
+  .chart-bar label{font-size:11px;color:var(--ink-soft);font-family:var(--mono);}
+
+  /* reward cards */
+  .reward-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  @media (max-width:900px){ .reward-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .reward-grid{grid-template-columns:1fr;} }
+  .reward-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);}
+  .reward-card.locked{opacity:.6;}
+  .reward-icon{width:42px;height:42px;border-radius:12px;background:rgba(76,154,94,0.1);color:var(--good);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .reward-card h4{font-family:var(--display);font-size:15px;margin:0 0 6px;}
+  .reward-card p{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;line-height:1.5;}
+  .reward-foot{display:flex;align-items:center;justify-content:space-between;}
+  .reward-foot span{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);}
+  .redeem-btn{
+    background:var(--forest);color:var(--paper);border:none;border-radius:100px;
+    padding:7px 14px;font-size:12px;font-weight:600;
+  }
+  .redeem-btn:disabled{background:var(--paper-dim);color:var(--ink-soft);}
+
+  /* profile */
+  .profile-head{display:flex;align-items:center;gap:16px;margin-bottom:22px;}
+  .profile-avatar{width:56px;height:56px;border-radius:50%;background:var(--forest);color:var(--paper);font-family:var(--display);font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+  .profile-name{font-family:var(--display);font-size:18px;font-weight:700;}
+  .profile-sub{font-size:12.5px;color:var(--ink-soft);}
+  .profile-stats{display:flex;gap:24px;}
+  .profile-stats div{display:flex;flex-direction:column;gap:2px;}
+  .profile-stats b{font-family:var(--mono);font-size:19px;}
+  .profile-stats span{font-size:11px;color:var(--ink-soft);}
+  .pref-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px;}
+  .pref-row:last-child{border-bottom:none;}
+  .pref-row span{color:var(--ink-soft);}
+
+  /* ================= LEARN-MORE TAB SECTION ================= */
+  .learn{padding:10px 0 96px;}
+  .learn-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:16px;}
+  .learn-head h2{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.6vw,28px);margin:0;letter-spacing:-0.01em;}
+  .learn-head p{color:var(--ink-soft);font-size:14px;margin:4px 0 0;}
+
+  .tabbar{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:34px;padding-bottom:0;}
+  .tabbtn{
+    background:none;border:none;padding:11px 4px;margin-right:22px;font-size:14.5px;font-weight:600;
+    color:var(--ink-soft);border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px;
+  }
+  .tabbtn.active{color:var(--ink);border-bottom-color:var(--forest);}
+  .tabbtn .n{font-family:var(--mono);font-size:11px;color:var(--sage);}
+
+  .tabpanel{display:none;}
+  .tabpanel.active{display:block;}
+
+  .problem-list{display:flex;flex-direction:column;border-top:1px solid var(--line);}
+  .problem-item{display:grid;grid-template-columns:190px 1fr;gap:36px;padding:22px 0;border-bottom:1px solid var(--line);}
+  .problem-item .tag{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);padding-top:2px;}
+  .problem-item p{margin:0;font-size:15.5px;line-height:1.55;max-width:640px;}
+  @media (max-width:760px){ .problem-item{grid-template-columns:1fr;gap:6px;} }
+
+  .formula-card{background:var(--ink);color:var(--paper);border-radius:18px;padding:28px 30px;margin-bottom:16px;}
+  .formula-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);margin-bottom:12px;}
+  .formula-eq{font-family:var(--mono);font-size:clamp(13px,1.8vw,17px);line-height:1.6;color:#fff;}
+  .formula-eq .k{color:var(--moderate);}
+  .learn-note{font-size:13.5px;color:var(--ink-soft);max-width:640px;line-height:1.6;}
+
+  .steps{position:relative;padding-top:4px;}
+  .steps::before{content:"";position:absolute;left:22px;top:14px;bottom:14px;width:1px;background:var(--line);}
+  .step{display:grid;grid-template-columns:46px 1fr;gap:20px;padding-bottom:34px;position:relative;}
+  .step:last-child{padding-bottom:0;}
+  .step-num{width:46px;height:46px;border-radius:12px;background:var(--paper);border:1.5px solid var(--forest);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;font-size:15px;color:var(--forest);z-index:1;}
+  .step h3{font-family:var(--display);font-size:17px;font-weight:600;margin:2px 0 7px;}
+  .step p{margin:0;color:var(--ink-soft);font-size:14.5px;line-height:1.6;max-width:580px;}
+
+  .ethics-panel{background:var(--forest-deep);color:var(--paper);border-radius:20px;padding:8px;}
+  .ethics-list{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(238,239,228,0.12);border-radius:14px;overflow:hidden;}
+  @media (max-width:760px){ .ethics-list{grid-template-columns:1fr;} }
+  .ethics-item{padding:22px 24px;background:var(--forest-deep);}
+  .ethics-item .num{font-family:var(--mono);font-size:11.5px;color:var(--sky);display:block;margin-bottom:8px;}
+  .ethics-item p{margin:0;font-size:14.5px;line-height:1.5;}
+
+  .stack-chips{display:flex;flex-wrap:wrap;gap:11px;}
+  .chip{border:1px solid var(--line);border-radius:100px;padding:9px 17px;font-family:var(--mono);font-size:12px;display:flex;align-items:center;gap:8px;background:#fff;}
+  .chip .sq{width:7px;height:7px;background:var(--sage);border-radius:2px;}
+
+  /* ================= AUTH GATE ================= */
+  #authWrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px;}
+  .authCard{
+    background:var(--white);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);
+    padding:38px 34px;width:100%;max-width:380px;text-align:center;transition:max-width .2s ease;
+  }
+  .authCard.wide{max-width:480px;text-align:left;}
+  .authCard .brand{justify-content:center;margin-bottom:18px;}
+  .authCard h1{font-family:var(--display);font-size:24px;font-weight:700;margin:0 0 4px;color:var(--ink);text-align:center;}
+  .authCard p.sub{
+    font-family:var(--mono);font-size:11.5px;color:var(--sage);text-transform:uppercase;
+    letter-spacing:.08em;margin:0 0 26px;text-align:center;
+  }
+  #gBtn{display:flex;justify-content:center;margin-bottom:12px;}
+  #setup{display:none;font-family:var(--body);}
+  #setup .miniProfile{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+  #setup .miniProfile img{width:38px;height:38px;border-radius:50%;}
+  #setup .miniProfile .name{font-weight:700;color:var(--ink);font-size:14px;font-family:var(--display);}
+  #setup .miniProfile .email{font-size:12px;color:var(--ink-soft);}
+  #setup h3{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--sage);margin:18px 0 8px;}
+  #setup h3:first-of-type{margin-top:0;}
+  #setup input[type=text]{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;
+    font-size:14.5px;background:var(--paper);margin-bottom:4px;color:var(--ink);
+  }
+  .optRow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+  .optRow label{
+    display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink);background:var(--paper);
+    border:1px solid var(--line);border-radius:100px;padding:7px 13px;cursor:pointer;margin-bottom:0;
+  }
+  .optRow input{margin:0;accent-color:var(--forest);}
+  .optRow label:has(input:checked){border-color:var(--forest);background:rgba(76,154,94,0.12);}
+  #setup .fieldHint{font-size:11.5px;color:var(--ink-soft);margin:2px 0 0;line-height:1.4;}
+  .consentRow{
+    display:flex;align-items:flex-start;gap:10px;margin-top:18px;padding:13px 14px;
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  }
+  .consentRow input{margin-top:2px;accent-color:var(--forest);flex-shrink:0;}
+  .consentRow label{font-size:12.5px;color:var(--ink-soft);line-height:1.5;cursor:pointer;}
+  #setup button.primary{
+    width:100%;margin-top:20px;padding:13px;background:var(--forest);color:var(--paper);border:none;
+    border-radius:100px;font-family:var(--body);font-size:13.5px;font-weight:600;cursor:pointer;
+  }
+  #setup button.primary:hover{background:var(--forest-deep);}
+  .privacyNote{font-size:11.5px;color:var(--ink-soft);background:var(--paper);border-radius:10px;padding:11px 13px;margin-top:14px;line-height:1.5;}
+  .authMsg{font-family:var(--body);font-size:12.5px;color:var(--poor);margin-top:12px;display:none;}
+
+  /* ================= TRIP FORM (Today page) ================= */
+  .trip-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+  .trip-row > div{flex:1;min-width:220px;}
+  .trip-row label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);display:block;margin-bottom:5px;}
+  .trip-row input[type=text]{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:var(--body);
+    font-size:14px;background:var(--paper);color:var(--ink);
+  }
+  .go-btn{
+    background:var(--forest);color:var(--paper);border:none;border-radius:100px;padding:11px 22px;
+    font-family:var(--body);font-weight:600;font-size:13.5px;cursor:pointer;
+  }
+  .go-btn:hover{background:var(--forest-deep);}
+  .go-btn:disabled{opacity:.6;cursor:default;}
+  .go-btn.secondary{background:transparent;color:var(--forest);border:1.5px solid var(--forest);margin-left:8px;}
+  .go-btn.secondary:hover{background:rgba(76,154,94,0.08);}
+  .cond-note{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-top:12px;}
+  .header-chip{display:flex;align-items:center;gap:8px;font-family:var(--body);font-size:12.5px;color:var(--ink-soft);}
+  .header-chip img{width:26px;height:26px;border-radius:50%;}
+  .header-chip a{color:var(--forest);text-decoration:underline;cursor:pointer;margin-left:4px;font-weight:600;}
+  .lb-note{font-size:11.5px;color:var(--ink-soft);margin-top:12px;padding-top:12px;border-top:1px solid var(--line);line-height:1.5;}
+
+  /* ================= FOOTER ================= */
+  footer{background:var(--ink);color:var(--paper);}
+  .foot-top{padding:56px 0 40px;display:grid;grid-template-columns:1.4fr repeat(4, 1fr);gap:36px;}
+  @media (max-width:900px){ .foot-top{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .foot-top{grid-template-columns:1fr;} }
+  .foot-brand-col .brand2{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .foot-brand-col .brand2 .logo-mark{width:32px;height:32px;}
+  .foot-brand-col .brand2 b{font-family:var(--display);font-size:16px;font-weight:700;}
+  .foot-brand-col p{font-size:13px;color:rgba(238,239,228,0.6);line-height:1.6;max-width:240px;margin:0;}
+  .foot-col h5{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--sage);margin:0 0 14px;}
+  .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .foot-col a{font-size:13.5px;color:rgba(238,239,228,0.78);text-decoration:none;}
+  .foot-col a:hover{color:#fff;}
+  .foot-bottom{border-top:1px solid rgba(238,239,228,0.14);padding:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .foot-bottom span{font-size:12px;color:rgba(238,239,228,0.55);}
+  .foot-social{display:flex;gap:10px;}
+  .foot-social a{width:32px;height:32px;border-radius:50%;background:rgba(238,239,228,0.08);display:flex;align-items:center;justify-content:center;color:rgba(238,239,228,0.7);text-decoration:none;}
+  .foot-social a:hover{background:rgba(238,239,228,0.16);color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- ============== SIGN IN + PROFILE SETUP ============== -->
+<div id="authWrap">
+  <div class="authCard" id="authCard">
+    <div class="brand">
+      <svg class="logo-mark" viewBox="0 0 64 64" width="40" height="40">
+        <defs>
+          <linearGradient id="logoGradAuth" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#5CB877"/><stop offset="1" stop-color="#0F1D16"/>
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="30" fill="url(#logoGradAuth)"/>
+        <path d="M20 41C20 27 30 20 44 20 43 33 34 43 20 41Z" fill="#EEEFE4"/>
+        <path d="M22 45c3-6 8-10 15-12" stroke="#1F3B2E" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1>Carbon Coach AI</h1>
+    <p class="sub">Sign in to continue</p>
+
+    <div id="gBtn"></div>
+
+    <form id="setup" onsubmit="saveProfile(event)">
+      <div class="miniProfile">
+        <img id="pfPic" src="" alt="">
+        <div>
+          <div class="name" id="pfName"></div>
+          <div class="email" id="pfEmail"></div>
+        </div>
+      </div>
+
+      <h3>What city are you based in?</h3>
+      <input type="text" id="cityInput" placeholder="e.g. Berkeley, CA" required>
+      <p class="fieldHint">Not every city is equally walkable or bikeable — we use this to adjust recommendations, and we'll say so plainly when we're just estimating.</p>
+
+      <h3>Do you have a bike?</h3>
+      <div class="optRow">
+        <label><input type="radio" name="bike" value="none" checked> No bike</label>
+        <label><input type="radio" name="bike" value="regular"> Regular bike</label>
+        <label><input type="radio" name="bike" value="ebike"> E-bike</label>
+      </div>
+      <p class="fieldHint">If you don't have a bike, we won't recommend biking — even when it scores well.</p>
+
+      <h3>Do you have a car available to drive?</h3>
+      <div class="optRow">
+        <label><input type="radio" name="car" value="yes" checked> Yes</label>
+        <label><input type="radio" name="car" value="no"> No</label>
+      </div>
+
+      <h3>Public transit near you?</h3>
+      <div class="optRow">
+        <label><input type="radio" name="transit" value="yes" checked> Yes, it's an option</label>
+        <label><input type="radio" name="transit" value="no"> Not really</label>
+      </div>
+
+      <h3>Anything we should be cautious about?</h3>
+      <div class="optRow">
+        <label><input type="checkbox" name="sens" value="airQuality"> Prefer to avoid poor air quality</label>
+        <label><input type="checkbox" name="sens" value="heat"> Prefer to avoid heat</label>
+      </div>
+      <p class="fieldHint">Self-reported preference only — we use this to weigh recommendations, not to diagnose anything.</p>
+
+      <h3>Extra time you're OK with vs. driving</h3>
+      <div class="optRow">
+        <label><input type="radio" name="timeTol" value="10"> Up to 10 min</label>
+        <label><input type="radio" name="timeTol" value="20" checked> Up to 20 min</label>
+        <label><input type="radio" name="timeTol" value="40"> Up to 40 min</label>
+      </div>
+
+      <div class="consentRow">
+        <input type="checkbox" id="shareNameCheck" name="shareName" checked>
+        <label for="shareNameCheck">Show my name on the leaderboard. If unchecked, you'll appear as "Anonymous" to other users — your points still count either way.</label>
+      </div>
+
+      <button type="submit" class="primary">Save & continue</button>
+
+      <div class="privacyNote">
+        Your preferences stay on this device. Health/comfort answers are never sold or shared — see our Ethics tab below for details.
+      </div>
+    </form>
+
+    <div class="authMsg" id="errMsg"></div>
+  </div>
+</div>
+
+<!-- inline icon defs -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5 19c8 0 14-6 14-14-8 0-14 6-14 14Z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M5 19c0-4 2-8 6-11"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M12 20s-7.5-4.6-9.7-9.3C.7 7 2.6 3.8 6 3.4c2-.2 3.7.8 6 3 2.3-2.2 4-3.2 6-3 3.4.4 5.3 3.6 3.7 7.3C19.5 15.4 12 20 12 20Z"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18 6l-1.7 1.7M7.7 16.3 6 18M18 18l-1.7-1.7M7.7 7.7 6 6"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 20V10M12 20V4M20 20v-7"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path fill="none" stroke="currentColor" stroke-width="1.8" d="M8 5H5a1 1 0 0 0-1 1v1a3 3 0 0 0 3 3M16 5h3a1 1 0 0 1 1 1v1a3 3 0 0 1-3 3"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 13v3M9 20h6M10 17h4v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2Z"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" d="M2.5 6h19v3h-19zM12 6v14M12 6C10.5 2 6 3 6 5.5S9 8 12 6ZM12 6c1.5-4 6-3 6-.5S15 8 12 6Z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M5 20c1.2-4 4-6 7-6s5.8 2 7 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M4 12.5 9.5 18 20 6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-bike" viewBox="0 0 24 24"><circle cx="6" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M6 17l4-8h4l4 8M10 9H8m2-4h3l2 4"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 2.5v2.6M12 18.9v2.6M21.5 12h-2.6M5.1 12H2.5M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8M18.4 18.4l-1.8-1.8M7.4 7.4 5.6 5.6"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M20 13.5A8.5 8.5 0 1 1 10.5 4a6.8 6.8 0 0 0 9.5 9.5Z"/></symbol>
+  </defs>
+</svg>
+
+<div id="appShell" style="display:none;">
+<header class="app-bar">
+  <div class="wrap app-bar-inner">
+    <div class="brand">
+      <svg class="logo-mark" viewBox="0 0 64 64">
+        <defs>
+          <linearGradient id="logoGrad" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#5CB877"/>
+            <stop offset="1" stop-color="#0F1D16"/>
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="30" fill="url(#logoGrad)"/>
+        <path d="M20 41C20 27 30 20 44 20 43 33 34 43 20 41Z" fill="#EEEFE4"/>
+        <path d="M22 45c3-6 8-10 15-12" stroke="#1F3B2E" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="45" cy="17" r="1.6" fill="#EEEFE4"/>
+        <circle cx="49" cy="21" r="1.2" fill="#EEEFE4"/>
+        <circle cx="49" cy="14" r="1" fill="#EEEFE4"/>
+      </svg>
+      <div class="word"><b>Carbon Coach AI</b><span>Smart coaching · Lower carbon</span></div>
+    </div>
+    <div class="tabs" id="tabsNav">
+      <span class="tab-indicator" id="tabIndicator"></span>
+      <button class="active" data-page="today"><svg class="icon"><use href="#i-leaf"/></svg>Today</button>
+      <button data-page="progress"><svg class="icon"><use href="#i-chart"/></svg>Progress</button>
+      <button data-page="leaderboard"><svg class="icon"><use href="#i-trophy"/></svg>Leaderboard</button>
+      <button data-page="rewards"><svg class="icon"><use href="#i-gift"/></svg>Rewards</button>
+      <button data-page="profile"><svg class="icon"><use href="#i-user"/></svg>Profile</button>
+    </div>
+    <div class="header-chip">
+      <img id="chipPic" src="" alt="">
+      <span id="chipName"></span>
+      <a onclick="editProfile()">Edit</a>
+      <a onclick="signOut()">Sign out</a>
+    </div>
+    <button class="gear-btn" id="themeToggle" aria-label="Toggle dark mode">
+      <svg class="icon-lg" id="themeIconSun"><use href="#i-sun"/></svg>
+      <svg class="icon-lg" id="themeIconMoon" style="display:none"><use href="#i-moon"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="app-pages">
+<section id="page-today" class="page active dash">
+  <div class="wrap">
+    <div class="greet-row reveal">
+      <div>
+        <h1 id="greetH1">Good morning</h1>
+        <div class="sub">Here's your best way to travel today</div>
+      </div>
+      <div class="greet-date" id="greetDate"><svg class="icon"><use href="#i-check"/></svg>&nbsp;</div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="reveal">
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-head"><h3>Today's trip</h3></div>
+          <div class="trip-row">
+            <div>
+              <label>Start (full street address)</label>
+              <input type="text" id="start" value="2199 Addison St, Berkeley, CA">
+            </div>
+            <div>
+              <label>Destination (full street address)</label>
+              <input type="text" id="end" value="1 Frank H Ogawa Plaza, Oakland, CA">
+            </div>
+          </div>
+          <button class="go-btn" onclick="getRecommendation()" id="recBtn">Get today's recommendation</button>
+          <div class="cond-note" id="conditionsNote"></div>
+        </div>
+
+        <div class="rec-card" id="recCard" style="display:none;">
+          <div class="rec-top">
+            <div>
+              <div class="rec-tag">Recommended for today</div>
+              <div class="rec-title" id="recTitle">Take the <b>Bike</b> today</div>
+            </div>
+            <div class="rec-icon-circle"><svg id="recIcon"><use href="#i-bike"/></svg></div>
+          </div>
+          <div class="rec-why" id="recWhy">Because it's the best balance of your health, time, and carbon goals.</div>
+          <div class="rec-chips">
+            <div><span class="lbl"><svg class="icon"><use href="#i-leaf"/></svg>CO₂ saved</span><b id="chipCO2">—</b></div>
+            <div><span class="lbl"><svg class="icon"><use href="#i-clock"/></svg>Time</span><b id="chipTime">—</b></div>
+            <div><span class="lbl"><svg class="icon"><use href="#i-heart"/></svg>Health</span><b id="chipHealth">—</b></div>
+          </div>
+          <div style="margin-top:20px;position:relative;z-index:1;">
+            <button class="go-btn" onclick="logTrip()" id="logBtn" style="background:var(--paper);color:var(--forest-deep);">I took this trip — log it</button>
+            <button class="go-btn secondary" style="border-color:var(--paper);color:var(--paper);" onclick="document.getElementById('overrideBox').style.display='block'">Different mode</button>
+            <div id="overrideBox" style="display:none; margin-top:12px;">
+              <select id="overrideMode" style="padding:8px; border-radius:8px; border:none;">
+                <option value="walk">Walk</option><option value="bike">Bike</option>
+                <option value="transit">Transit</option><option value="drive">Drive</option>
+              </select>
+              <button class="go-btn" onclick="logTrip(true)" style="margin-left:8px;background:var(--paper);color:var(--forest-deep);">Log this instead</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="scorePanel" style="margin-bottom:20px; display:none;">
+          <div class="panel-head"><h3>Today's scores</h3><a href="#learn" data-jump="solution">How we score <svg class="icon"><use href="#i-arrow"/></svg></a></div>
+          <div class="score-row" id="scoreRow"></div>
+          <div class="why-card" id="whyCard" style="display:none;">
+            <h4><svg class="icon-lg"><use href="#i-leaf"/></svg><span id="whyTitle">Why Bike?</span></h4>
+            <div class="pros-cons">
+              <div class="pc-col">
+                <span class="pc-label pc-good">Pros</span>
+                <ul id="prosList"></ul>
+              </div>
+              <div class="pc-col">
+                <span class="pc-label pc-bad">Cons</span>
+                <ul id="consList"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-col reveal" id="todaySidebar">
+        <div class="panel">
+          <div class="panel-head"><h3>Your impact</h3><span style="font-size:12px;color:var(--ink-soft);">All time</span></div>
+          <div class="impact-tiles">
+            <div class="impact-tile">
+              <div class="row1"><svg class="icon"><use href="#i-leaf"/></svg>CO₂ saved</div>
+              <b id="statCO2Side">0.0 kg</b>
+              <span class="foot" id="statTreesSide">Log a trip to get started</span>
+              <div class="bar"><span id="barCO2Side" style="--w:0%"></span></div>
+            </div>
+            <div class="impact-tile">
+              <div class="row1"><svg class="icon"><use href="#i-trophy"/></svg>Points</div>
+              <b id="statPointsSide">0 pts</b>
+              <span class="foot">Keep it up — great for the planet</span>
+              <div class="bar"><span id="barPointsSide" style="--w:0%"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Leaderboard</h3><span style="font-size:12px;color:var(--ink-soft);">This month</span></div>
+          <div id="lbSidePreview"></div>
+          <div class="prize-note">
+            <b><svg class="icon"><use href="#i-trophy"/></svg> Top 3 win prizes</b>
+            <div class="items"><span>Eco gadget pack</span><span>$50 gift card</span><span>Sustainable swag</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="page-progress" class="page dash">
+  <div class="wrap">
+    <div class="greet-row reveal">
+      <div>
+        <h1>Your progress</h1>
+        <div class="sub">CO₂ saved across the last 7 days</div>
+      </div>
+      <div class="greet-date" id="streakChip"><svg class="icon"><use href="#i-chart"/></svg>&nbsp;</div>
+    </div>
+
+    <div class="panel reveal" style="margin-bottom:20px;">
+      <div class="panel-head"><h3>Weekly CO₂ saved</h3><span style="font-size:12px;color:var(--ink-soft);" id="weekTotalLbl">0.0 kg total</span></div>
+      <div class="chart-row" id="chartRow"></div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="panel reveal">
+        <div class="panel-head"><h3>Current streak</h3></div>
+        <div class="impact-tile" style="border:none;padding:0;">
+          <b style="font-size:30px;" id="streakBig">0 days</b>
+          <span class="foot" id="streakFoot">Log a low-carbon trip today to start a streak</span>
+          <div class="bar"><span id="streakBar" style="--w:0%"></span></div>
+        </div>
+      </div>
+      <div class="panel reveal">
+        <div class="panel-head"><h3>Trips logged</h3></div>
+        <div class="impact-tile" style="border:none;padding:0;">
+          <b style="font-size:30px;color:var(--good);" id="tripsBig">0</b>
+          <span class="foot">All-time trips logged in this browser</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="page-leaderboard" class="page dash">
+  <div class="wrap">
+    <div class="greet-row reveal">
+      <div>
+        <h1>Leaderboard</h1>
+        <div class="sub">Top low-carbon commuters this month</div>
+      </div>
+      <div class="greet-date"><svg class="icon"><use href="#i-trophy"/></svg>Resets in 6 days</div>
+    </div>
+
+    <div class="panel reveal">
+      <div id="lbFull"></div>
+      <div class="prize-note">
+        <b><svg class="icon"><use href="#i-trophy"/></svg> Top 3 win prizes</b>
+        <div class="items"><span>Eco gadget pack</span><span>$50 gift card</span><span>Sustainable swag</span></div>
+      </div>
+      <div class="lb-note">This build has no shared server yet, so the other names here are sample data for demo purposes — only your own row reflects real, locally-tracked points. Your name only shows to others once a real backend exists; for now this just controls how your own row displays to you.</div>
+    </div>
+  </div>
+</section>
+
+<section id="page-rewards" class="page dash">
+  <div class="wrap">
+    <div class="greet-row reveal">
+      <div>
+        <h1>Rewards</h1>
+        <div class="sub">Redeem your points for real prizes</div>
+      </div>
+      <div class="greet-date" id="rewardsPtsChip"><svg class="icon"><use href="#i-trophy"/></svg>&nbsp;</div>
+    </div>
+
+    <div class="reward-grid reveal" id="rewardGrid">
+      <div class="reward-card" data-cost="3000">
+        <div class="reward-icon"><svg class="icon-lg"><use href="#i-gift"/></svg></div>
+        <h4>Sustainable swag pack</h4>
+        <p>Reusable bottle, tote, and stickers.</p>
+        <div class="reward-foot"><span>3,000 pts</span><button class="redeem-btn">Redeem</button></div>
+      </div>
+      <div class="reward-card" data-cost="5000">
+        <div class="reward-icon"><svg class="icon-lg"><use href="#i-leaf"/></svg></div>
+        <h4>Eco gadget pack</h4>
+        <p>Solar charger and reusable utensil kit.</p>
+        <div class="reward-foot"><span>5,000 pts</span><button class="redeem-btn">Redeem</button></div>
+      </div>
+      <div class="reward-card" data-cost="8000">
+        <div class="reward-icon"><svg class="icon-lg"><use href="#i-heart"/></svg></div>
+        <h4>$50 gift card</h4>
+        <p>Redeemable at partner retailers.</p>
+        <div class="reward-foot"><span>8,000 pts</span><button class="redeem-btn">Redeem</button></div>
+      </div>
+      <div class="reward-card" data-cost="10000">
+        <div class="reward-icon"><svg class="icon-lg"><use href="#i-trophy"/></svg></div>
+        <h4>Tree-planting certificate</h4>
+        <p>A tree planted in your name.</p>
+        <div class="reward-foot"><span>10,000 pts</span><button class="redeem-btn">Redeem</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="page-profile" class="page dash">
+  <div class="wrap">
+    <div class="greet-row reveal">
+      <div>
+        <h1>Profile</h1>
+        <div class="sub">Your account and preferences</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="panel reveal">
+        <div class="profile-head">
+          <div class="profile-avatar" id="profAvatar">?</div>
+          <div>
+            <div class="profile-name" id="profName">—</div>
+            <div class="profile-sub" id="profSub">—</div>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div><b id="profCO2">0.0 kg</b><span>CO₂ saved</span></div>
+          <div><b id="profPoints">0</b><span>Points</span></div>
+          <div><b id="profRank">—</b><span>This month</span></div>
+        </div>
+      </div>
+
+      <div class="panel reveal">
+        <div class="panel-head">
+          <h3>Preferences</h3>
+          <a onclick="editProfile()" style="cursor:pointer;">Edit <svg class="icon"><use href="#i-arrow"/></svg></a>
+        </div>
+        <div class="pref-row"><span>City</span><b id="prefCity">—</b></div>
+        <div class="pref-row"><span>Bike access</span><b id="prefBike">—</b></div>
+        <div class="pref-row"><span>Car access</span><b id="prefCar">—</b></div>
+        <div class="pref-row"><span>Transit access</span><b id="prefTransit">—</b></div>
+        <div class="pref-row"><span>Cautious about</span><b id="prefSens">—</b></div>
+        <div class="pref-row"><span>Time tolerance</span><b id="prefTime">—</b></div>
+        <div class="pref-row"><span>Leaderboard name</span><b id="prefShare">—</b></div>
+        <div class="pref-row"><span>Health data sharing</span><b>Private — never sold</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<section id="learn" class="learn">
+  <div class="wrap">
+    <div class="learn-head reveal">
+      <div>
+        <h2>About Carbon Coach</h2>
+        <p>The problem we're solving, how the scoring works, and where we're headed.</p>
+      </div>
+    </div>
+
+    <div class="tabbar reveal" role="tablist">
+      <button class="tabbtn active" data-tab="problem"><span class="n">01</span>Problem</button>
+      <button class="tabbtn" data-tab="solution"><span class="n">02</span>Solution</button>
+      <button class="tabbtn" data-tab="how"><span class="n">03</span>How it works</button>
+      <button class="tabbtn" data-tab="ethics"><span class="n">04</span>Ethics</button>
+      <button class="tabbtn" data-tab="stack"><span class="n">05</span>Built with</button>
+    </div>
+
+    <div class="tabpanel active" id="panel-problem">
+      <div class="problem-list">
+        <div class="problem-item"><div class="tag">Habit</div><p>People choose how they get around — commute, school run, errands — mindlessly. It's habit, not information.</p></div>
+        <div class="problem-item"><div class="tag">Disconnected data</div><p>Air quality, pollen, and heat data exist. Carbon-impact data exists too. Neither is connected to that one daily choice.</p></div>
+        <div class="problem-item"><div class="tag">Motivation gap</div><p>Pure carbon-tracking apps get abandoned fast. CO₂ savings alone aren't motivating enough, day after day.</p></div>
+        <div class="problem-item"><div class="tag">Informational only</div><p>AQI apps tell you the number. They don't tell you what to actually do about it this morning.</p></div>
+        <div class="problem-item"><div class="tag">Missing nudge</div><p>No tool combines "good for your health" and "good for the environment" into one nudge, at the exact moment the decision gets made.</p></div>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="panel-solution">
+      <div class="formula-card">
+        <div class="formula-label">Scoring model</div>
+        <div class="formula-eq">score(mode) = <span class="k">carbon_saved</span> − <span class="k">air_quality_penalty</span> − <span class="k">heat_pollen_penalty</span> − <span class="k">time_cost</span></div>
+      </div>
+      <p class="learn-note">Every morning, Carbon Coach weighs air quality, heat and pollen, time cost, and carbon savings across four transport modes — the same scores shown on your dashboard — and hands you a single answer: take X today, because Y. Biking usually scores high on carbon and time, but gets penalized hard the moment air quality turns poor or the heat index climbs into dangerous territory. The recommendation moves with the conditions, not a fixed rule.</p>
+    </div>
+
+    <div class="tabpanel" id="panel-how">
+      <div class="steps">
+        <div class="step"><div class="step-num">01</div><div><h3>Tell it your day</h3><p>Carbon Coach takes your usual transportation methods and daily commutes as a starting point.</p></div></div>
+        <div class="step"><div class="step-num">02</div><div><h3>It optimizes your route</h3><p>Each morning, describe today's plans and the AI works out the best route, time, and mode of transport.</p></div></div>
+        <div class="step"><div class="step-num">03</div><div><h3>Maps guide you there</h3><p>A connected maps feature guides you turn-by-turn to your destination in the recommended mode.</p></div></div>
+        <div class="step"><div class="step-num">04</div><div><h3>You get your score</h3><p>After you arrive, having tracked your speed and path, Carbon Coach adds your points to the monthly total.</p></div></div>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="panel-ethics">
+      <div class="ethics-panel">
+        <div class="ethics-list">
+          <div class="ethics-item"><span class="num">01</span><p>Health data stays private — never sold to employers or insurers.</p></div>
+          <div class="ethics-item"><span class="num">02</span><p>No assumption everyone has the same access — people choose what data they share.</p></div>
+          <div class="ethics-item"><span class="num">03</span><p>Every recommendation explains why — no black-box decisions.</p></div>
+          <div class="ethics-item"><span class="num">04</span><p>Honest about uncertainty — forecasts are forecasts, not guarantees.</p></div>
+          <div class="ethics-item"><span class="num">05</span><p>Never diagnoses or predicts a health event — only flags conditions.</p></div>
+          <div class="ethics-item"><span class="num">06</span><p>Facts only, always — no invented or misleading readings.</p></div>
+          <div class="ethics-item"><span class="num">07</span><p>Watching for data gaps in under-monitored, lower-income areas, where air quality often matters most.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="panel-stack">
+      <p class="learn-note" style="margin-bottom:18px;">AI/ML at the core of the recommendation engine, shipped like a real product.</p>
+      <div class="stack-chips">
+        <div class="chip"><span class="sq"></span>AI / ML recommendation engine</div>
+        <div class="chip"><span class="sq"></span>GitHub — code &amp; model storage</div>
+        <div class="chip"><span class="sq"></span>Vercel — hosting</div>
+        <div class="chip"><span class="sq"></span>Live air quality &amp; maps API</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-top">
+    <div class="foot-brand-col">
+      <div class="brand2">
+        <svg class="logo-mark" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="30" fill="url(#logoGrad)"/>
+          <path d="M20 41C20 27 30 20 44 20 43 33 34 43 20 41Z" fill="#EEEFE4"/>
+          <path d="M22 45c3-6 8-10 15-12" stroke="#1F3B2E" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <b>Carbon Coach AI</b>
+      </div>
+      <p>An AI-powered personal carbon coach that turns your morning commute into one clear, healthy, low-carbon call.</p>
+    </div>
+    <div class="foot-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#learn">Who we are</a></li>
+        <li><a href="#learn">Our mission</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>Product</h5>
+      <ul>
+        <li><a href="#" data-page="today">Today's score</a></li>
+        <li><a href="#" data-page="leaderboard">Leaderboard</a></li>
+        <li><a href="#learn">How it works</a></li>
+        <li><a href="#">Download the app</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>Shop</h5>
+      <ul>
+        <li><a href="#">Eco gadget pack</a></li>
+        <li><a href="#">Gift cards</a></li>
+        <li><a href="#">Sustainable swag</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h5>Legal</h5>
+      <ul>
+        <li><a href="#learn">Ethics &amp; privacy</a></li>
+        <li><a href="#">Terms of service</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap foot-bottom">
+    <span>© 2026 Carbon Coach AI. Built by Anirudh, Adith, Fateh &amp; Ryan.</span>
+    <div class="foot-social">
+      <a href="#" aria-label="GitHub">GH</a>
+      <a href="#" aria-label="LinkedIn">in</a>
+      <a href="#" aria-label="Email">@</a>
+    </div>
+  </div>
+</footer>
+</div>
+
+<script>
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:0.15});
+  els.forEach(el=>io.observe(el));
+
+  function animateFills(container){
+    container.querySelectorAll('.bar span').forEach(el=>{
+      const w = el.style.getPropertyValue('--w');
+      requestAnimationFrame(()=>{ el.style.width = w; });
+    });
+  }
+  const fio = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ animateFills(e.target); fio.unobserve(e.target); } });
+  },{threshold:0.2});
+  document.querySelectorAll('.side-col').forEach(t=>fio.observe(t));
+
+  // clickable score tiles -> pros/cons panel (data comes from the real scoring
+  // breakdown computed in getRecommendation(), stored in currentRec)
+  function modeCopy(mode, r, available){
+    const titles = { walk:"Why Walk?", bike:"Why Bike?", transit:"Why Transit?", drive:"Why Drive?" };
+    const pros = [], cons = [];
+    if (r.co2Saved > 0.05) pros.push(`Saves ${r.co2Saved.toFixed(1)} kg CO₂ vs. driving`);
+    else if (mode !== 'drive') pros.push(`No meaningful CO₂ difference vs. driving on this route`);
+    if (r.penalty < 2) pros.push(`Air quality, heat, and local infrastructure are fine for it today`);
+    else cons.push(`Today's air quality / heat / infrastructure conditions work against it`);
+    if (r.timeScore >= 0) pros.push(`Fits within the extra time you said you're OK with`);
+    else cons.push(`Takes longer than you said you're willing to spend`);
+    if (mode === 'drive') cons.push(`Highest CO₂ emissions of the four options`);
+    if (!available) cons.push(`Not available — you said you don't have access to this mode`);
+    return { title: titles[mode], pros, cons };
+  }
+
+  function renderMode(mode){
+    if (!currentRec || !currentRec.results[mode]) return;
+    const data = modeCopy(mode, currentRec.results[mode], currentRec.available[mode]);
+    document.getElementById('whyTitle').textContent = data.title;
+    document.getElementById('prosList').innerHTML = data.pros.map(p=>
+      `<li><svg class="icon"><use href="#i-check"/></svg>${p}</li>`).join('');
+    document.getElementById('consList').innerHTML = data.cons.map(c=>
+      `<li><svg class="icon"><use href="#i-x"/></svg>${c}</li>`).join('');
+    document.getElementById('whyCard').style.display = 'block';
+    document.querySelectorAll('.score-tile').forEach(t=>t.classList.toggle('selected', t.dataset.mode === mode));
+  }
+
+  // tab switching
+  const tabbtns = document.querySelectorAll('.tabbtn');
+  tabbtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabbtns.forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // jump link opens the solution tab
+  document.querySelectorAll('[data-jump]').forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      const target = a.dataset.jump;
+      const btn = document.querySelector('.tabbtn[data-tab="'+target+'"]');
+      if(btn) btn.click();
+    });
+  });
+
+  // ---- multi-page navigation (Today / Progress / Leaderboard / Rewards / Profile) ----
+  function animatePageBars(page){
+    page.querySelectorAll('.bar span').forEach(el=>{
+      const w = el.style.getPropertyValue('--w');
+      el.style.width = '0';
+      requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ el.style.width = w; }); });
+    });
+    page.querySelectorAll('.chart-bar span').forEach(el=>{
+      const h = el.style.getPropertyValue('--h');
+      el.style.height = '0';
+      requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ el.style.height = h; }); });
+    });
+  }
+
+  function goToPage(name){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+    const page = document.getElementById('page-'+name);
+    const navbtn = document.querySelector('.tabs button[data-page="'+name+'"]');
+    if(page){ page.classList.add('active'); animatePageBars(page); window.scrollTo({top:0, behavior:'smooth'}); }
+    if(navbtn){ navbtn.classList.add('active'); moveIndicator(navbtn); }
+    if(name === 'progress') renderProgress();
+    if(name === 'leaderboard') renderLeaderboard();
+    if(name === 'rewards') renderRewards();
+    if(name === 'profile') renderProfile();
+  }
+
+  // sliding highlight behind the active nav tab
+  const tabIndicator = document.getElementById('tabIndicator');
+  function moveIndicator(btn){
+    if(!tabIndicator || !btn) return;
+    tabIndicator.style.left = btn.offsetLeft + 'px';
+    tabIndicator.style.width = btn.offsetWidth + 'px';
+  }
+  const initialActiveTab = document.querySelector('.tabs button.active');
+  if(initialActiveTab){
+    // set instantly on load (no slide-in from 0)
+    tabIndicator.style.transition = 'none';
+    moveIndicator(initialActiveTab);
+    requestAnimationFrame(()=>{ tabIndicator.style.transition = ''; });
+  }
+  window.addEventListener('resize', ()=>{
+    const active = document.querySelector('.tabs button.active');
+    if(active) moveIndicator(active);
+  });
+
+  document.querySelectorAll('[data-page]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      goToPage(el.dataset.page);
+    });
+  });
+
+  // ---- dark / light theme toggle ----
+  const themeToggle = document.getElementById('themeToggle');
+  const sunIcon = document.getElementById('themeIconSun');
+  const moonIcon = document.getElementById('themeIconMoon');
+
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    sunIcon.style.display = theme === 'dark' ? 'none' : 'block';
+    moonIcon.style.display = theme === 'dark' ? 'block' : 'none';
+  }
+
+  let savedTheme = 'light';
+  try{ savedTheme = localStorage.getItem('carbon-coach-theme') || 'light'; }catch(e){}
+  applyTheme(savedTheme);
+
+  themeToggle.addEventListener('click', ()=>{
+    const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try{ localStorage.setItem('carbon-coach-theme', next); }catch(e){}
+  });
+
+/* ============================================================
+   AUTH + PROFILE
+   ============================================================ */
+const GOOGLE_CLIENT_ID = "240764457745-80tnpb0egt46mpikbvqbm5etd7krubc6.apps.googleusercontent.com";
+
+let currentUser = null; // { name, email, picture }
+let profile = null;     // saved preferences, see saveProfile()
+
+function profileKey(email) { return 'carbonCoachProfile_' + email; }
+function historyKey(email) { return 'carbonCoachHistory_' + email; }
+
+function handleCredentialResponse(response) {
+  try {
+    // Decoded client-side just to display who's signed in — not secure verification,
+    // fine for a prototype since nothing sensitive is gated behind it server-side.
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    currentUser = { name: payload.name, email: payload.email, picture: payload.picture };
+
+    document.getElementById('gBtn').style.display = 'none';
+    document.getElementById('authCard').classList.add('wide');
+    document.getElementById('pfPic').src = payload.picture;
+    document.getElementById('pfName').textContent = payload.name;
+    document.getElementById('pfEmail').textContent = payload.email;
+
+    const existing = localStorage.getItem(profileKey(payload.email));
+    if (existing) {
+      profile = JSON.parse(existing);
+      enterApp();
+    } else {
+      document.getElementById('setup').style.display = 'block';
+    }
+  } catch (e) {
+    const err = document.getElementById('errMsg');
+    err.textContent = "Sign-in failed to parse response.";
+    err.style.display = 'block';
+  }
+}
+
+function saveProfile(event) {
+  event.preventDefault();
+  if (!currentUser) return;
+  const form = event.target;
+  const sensBoxes = Array.from(form.querySelectorAll('input[name="sens"]:checked')).map(el => el.value);
+  const bike = form.querySelector('input[name="bike"]:checked').value;
+
+  profile = {
+    name: currentUser.name,
+    email: currentUser.email,
+    city: document.getElementById('cityInput').value.trim(),
+    bike: bike,                 // none / regular / ebike
+    hasCar: form.querySelector('input[name="car"]:checked').value === 'yes',
+    hasTransit: form.querySelector('input[name="transit"]:checked').value === 'yes',
+    sensitivities: sensBoxes,
+    timeTolMinutes: Number(form.querySelector('input[name="timeTol"]:checked').value),
+    shareName: form.querySelector('input[name="shareName"]').checked,
+    savedAt: (profile && profile.savedAt) || new Date().toISOString()
+  };
+  localStorage.setItem(profileKey(currentUser.email), JSON.stringify(profile));
+  enterApp();
+}
+
+function editProfile() {
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('authWrap').style.display = 'flex';
+  document.getElementById('gBtn').style.display = 'none';
+  document.getElementById('authCard').classList.add('wide');
+
+  if (profile) {
+    document.getElementById('cityInput').value = profile.city || '';
+    document.querySelector(`input[name="bike"][value="${profile.bike}"]`).checked = true;
+    document.querySelector(`input[name="car"][value="${profile.hasCar ? 'yes' : 'no'}"]`).checked = true;
+    document.querySelector(`input[name="transit"][value="${profile.hasTransit ? 'yes' : 'no'}"]`).checked = true;
+    document.querySelector(`input[name="timeTol"][value="${profile.timeTolMinutes}"]`).checked = true;
+    document.querySelectorAll('input[name="sens"]').forEach(el => {
+      el.checked = profile.sensitivities.includes(el.value);
+    });
+    document.querySelector('input[name="shareName"]').checked = profile.shareName !== false;
+  }
+  document.getElementById('setup').style.display = 'block';
+}
+
+function signOut() {
+  if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
+  currentUser = null;
+  profile = null;
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('authWrap').style.display = 'flex';
+  document.getElementById('authCard').classList.remove('wide');
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('gBtn').style.display = 'flex';
+}
+
+function enterApp() {
+  document.getElementById('authWrap').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  document.getElementById('chipPic').src = currentUser.picture;
+  document.getElementById('chipName').textContent = currentUser.name.split(' ')[0];
+  const hr = new Date().getHours();
+  document.getElementById('greetH1').textContent =
+    (hr < 12 ? 'Good morning, ' : hr < 18 ? 'Good afternoon, ' : 'Good evening, ') + currentUser.name.split(' ')[0];
+  document.getElementById('greetDate').innerHTML =
+    `<svg class="icon"><use href="#i-check"/></svg>` +
+    new Date().toLocaleDateString(undefined, { weekday: 'long' });
+  renderImpact();
+  goToPage('today');
+}
+
+window.onload = function () {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('gBtn'),
+    { theme: "outline", size: "large", shape: "pill" }
+  );
+};
+
+/* ============================================================
+   CITY WALKABILITY / BIKEABILITY (estimate, honestly labeled)
+   ============================================================ */
+const CITY_FRIENDLINESS = {
+  "berkeley": 1.0, "san francisco": 1.0, "oakland": 0.95, "new york": 1.0,
+  "portland": 1.0, "minneapolis": 0.95, "boston": 0.9, "seattle": 0.9,
+  "chicago": 0.85, "washington": 0.85, "philadelphia": 0.85,
+  "denver": 0.7, "austin": 0.6, "los angeles": 0.6, "san diego": 0.6,
+  "atlanta": 0.5, "dallas": 0.45, "houston": 0.4, "phoenix": 0.4, "detroit": 0.5
+};
+function getCityFriendliness(cityName) {
+  const key = (cityName || "").toLowerCase();
+  for (const known in CITY_FRIENDLINESS) {
+    if (key.includes(known)) return { score: CITY_FRIENDLINESS[known], known: true };
+  }
+  return { score: 0.65, known: false };
+}
+
+/* ============================================================
+   CARBON COACH — SCORING ENGINE
+   Live sources: OpenRouteService (geocode + directions),
+   OpenWeatherMap (air quality + weather). Keys are visible in
+   this static page's source — fine for a prototype; move behind
+   a small server before a public launch.
+   ============================================================ */
+const ORS_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjFjMmI1M2EzMGUzNDQwZWE5MWI5MTM4OGNhMTJiZTk4IiwiaCI6Im11cm11cjY0In0=";
+const OWM_KEY = "634f7f70f50b1a42729d19db1c868e0b";
+const EMISSIONS_KG_PER_MILE = { walk: 0, bike: 0, transit: 0.10, drive: 0.40 };
+
+async function geocode(address) {
+  const url = `https://api.openrouteservice.org/geocode/search?api_key=${ORS_KEY}` +
+              `&text=${encodeURIComponent(address)}&size=1&boundary.country=US`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Geocoding failed for "${address}"`);
+  const data = await res.json();
+  if (!data.features || !data.features.length) throw new Error(`Could not find location: "${address}"`);
+  const feature = data.features[0];
+  return { coord: feature.geometry.coordinates, label: feature.properties.label };
+}
+
+async function fetchRoute(profile_, startCoord, endCoord) {
+  const url = `https://api.openrouteservice.org/v2/directions/${profile_}?api_key=${ORS_KEY}` +
+              `&start=${startCoord[0]},${startCoord[1]}&end=${endCoord[0]},${endCoord[1]}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Routing failed for mode: ${profile_}`);
+  const data = await res.json();
+  const summary = data.features[0].properties.summary;
+  return { distanceMiles: summary.distance / 1609.34, minutes: summary.duration / 60 };
+}
+
+async function getRoutes(startCoord, endCoord) {
+  const bikeProfile = (profile && profile.bike === 'ebike') ? 'cycling-electric' : 'cycling-regular';
+  const [walk, bike, drive] = await Promise.all([
+    fetchRoute('foot-walking', startCoord, endCoord),
+    fetchRoute(bikeProfile, startCoord, endCoord),
+    fetchRoute('driving-car', startCoord, endCoord)
+  ]);
+  const transit = { distanceMiles: drive.distanceMiles, minutes: drive.minutes * 1.6 + 8, estimated: true };
+
+  const { score: friendliness } = getCityFriendliness(profile ? profile.city : "");
+  const frictionMultiplier = 1 + (1 - friendliness) * 0.5;
+  walk.minutes *= frictionMultiplier;
+  bike.minutes *= frictionMultiplier;
+
+  return { walk, bike, transit, drive };
+}
+
+async function getConditions(lat, lon) {
+  const [airRes, weatherRes] = await Promise.all([
+    fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${OWM_KEY}`),
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OWM_KEY}&units=imperial`)
+  ]);
+  if (!airRes.ok || !weatherRes.ok) throw new Error("Could not fetch live air quality / weather data.");
+  const airData = await airRes.json();
+  const weatherData = await weatherRes.json();
+  const owmAqi = airData.list[0].main.aqi;
+  const aqiMap = { 1: 25, 2: 75, 3: 125, 4: 175, 5: 250 };
+  const aqi = aqiMap[owmAqi] || 100;
+  const heatIndexF = Math.round(weatherData.main.feels_like);
+  return { aqi, heatIndexF };
+}
+
+// Health penalty: walk/bike get penalized when AQI is poor or heat is dangerous,
+// plus a small extra penalty in less bike/walk-friendly cities.
+function healthPenalty(mode, aqi, heatIndexF, friendliness) {
+  const outdoorExposure = { walk: 1.0, bike: 0.9, transit: 0.15, drive: 0.05 };
+  const exposure = outdoorExposure[mode];
+  let aqiPenalty = 0;
+  if (aqi > 100) aqiPenalty = (aqi - 100) * 0.25;
+  else if (aqi > 50) aqiPenalty = (aqi - 50) * 0.05;
+  let heatPenalty = 0;
+  if (heatIndexF > 90) heatPenalty = (heatIndexF - 90) * 1.5;
+  else if (heatIndexF > 80) heatPenalty = (heatIndexF - 80) * 0.3;
+  let infraPenalty = 0;
+  if (mode === 'walk' || mode === 'bike') infraPenalty = (1 - friendliness) * 10;
+  return (aqiPenalty + heatPenalty) * exposure + infraPenalty;
+}
+
+// CORE FORMULA: score(mode) = co2_score + time_score − health_penalty
+// (co2/time compared against the driving route as baseline)
+function scoreMode(mode, routes, aqi, heatIndexF, friendliness, timeTolMinutes) {
+  const driveDistance = routes.drive.distanceMiles;
+  const driveMinutes = routes.drive.minutes;
+  const modeMinutes = routes[mode].minutes;
+
+  const driveEmissions = driveDistance * EMISSIONS_KG_PER_MILE.drive;
+  const modeEmissions = driveDistance * EMISSIONS_KG_PER_MILE[mode];
+  const co2Saved = driveEmissions - modeEmissions;
+  const co2Score = co2Saved * 20;
+
+  const extraMinutes = Math.max(0, modeMinutes - driveMinutes);
+  const timeScore = timeTolMinutes - extraMinutes;
+
+  const penalty = healthPenalty(mode, aqi, heatIndexF, friendliness);
+
+  const total = co2Score + timeScore - penalty;
+  return { co2Saved, co2Score, timeScore, penalty, total, minutes: modeMinutes, distanceMiles: routes[mode].distanceMiles };
+}
+
+function explainWhy(mode, breakdown, aqi, heatIndexF) {
+  const bits = [];
+  if (breakdown.co2Saved > 0) bits.push(`saves ${breakdown.co2Saved.toFixed(1)} kg of CO2 vs. driving`);
+  if (breakdown.penalty < 2) bits.push(`air quality, heat, and local infrastructure are fine for it today (AQI ${aqi}, ${heatIndexF}\u00b0F)`);
+  else bits.push(`it avoids most of today's air quality / heat / infrastructure downsides (AQI ${aqi}, ${heatIndexF}\u00b0F)`);
+  if (breakdown.timeScore > 0) bits.push(`it fits within the extra time you said you're OK with`);
+  return `Because it ${bits.join(", and ")}.`;
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+const MODE_ICON = { walk: '#i-leaf', bike: '#i-bike', transit: '#i-chart', drive: '#i-heart' };
+
+/* ============================================================
+   APP STATE + TRIP LOGGING
+   ============================================================ */
+let currentRec = null;
+
+function availableModes() {
+  return { walk: true, bike: profile.bike !== 'none', transit: profile.hasTransit, drive: profile.hasCar };
+}
+
+function loadHistory() {
+  if (!currentUser) return [];
+  try { return JSON.parse(localStorage.getItem(historyKey(currentUser.email)) || '[]'); }
+  catch (e) { return []; }
+}
+function saveHistory(hist) {
+  if (!currentUser) return;
+  localStorage.setItem(historyKey(currentUser.email), JSON.stringify(hist));
+}
+
+async function getRecommendation() {
+  const startAddr = document.getElementById('start').value.trim();
+  const endAddr = document.getElementById('end').value.trim();
+  const btn = document.getElementById('recBtn');
+  const note = document.getElementById('conditionsNote');
+
+  btn.disabled = true;
+  btn.textContent = "Looking up route and conditions...";
+  note.innerHTML = "";
+  document.getElementById('recCard').style.display = 'none';
+  document.getElementById('scorePanel').style.display = 'none';
+  document.getElementById('whyCard').style.display = 'none';
+
+  try {
+    const [startGeo, endGeo] = await Promise.all([geocode(startAddr), geocode(endAddr)]);
+    const routes = await getRoutes(startGeo.coord, endGeo.coord);
+    const { aqi, heatIndexF } = await getConditions(startGeo.coord[1], startGeo.coord[0]);
+    const { score: friendliness, known: cityKnown } = getCityFriendliness(profile.city);
+
+    const available = availableModes();
+    const results = {};
+    for (const mode of Object.keys(routes)) {
+      results[mode] = scoreMode(mode, routes, aqi, heatIndexF, friendliness, profile.timeTolMinutes);
+    }
+
+    const candidateModes = Object.keys(results).filter(m => available[m]);
+    if (candidateModes.length === 0) {
+      note.innerHTML = `<span style="color:var(--poor)">No transportation modes are marked as available in your profile. Edit your profile to get a recommendation.</span>`;
+      return;
+    }
+    const bestMode = candidateModes.reduce((a, b) => results[a].total > results[b].total ? a : b);
+    currentRec = { mode: bestMode, results, routes, aqi, heatIndexF, available };
+
+    const driveMiles = routes.drive.distanceMiles;
+    const suspiciouslyFar = driveMiles > 100;
+
+    note.innerHTML =
+      `Resolved to: <b>${startGeo.label}</b> &rarr; <b>${endGeo.label}</b> (${driveMiles.toFixed(1)} mi apart by car).<br>` +
+      (suspiciouslyFar
+        ? `<span style="color:var(--poor)">That's much farther than a normal commute — one of your addresses probably matched the wrong place. Try adding a street number, city, and state.</span><br>`
+        : ``) +
+      `Air Quality Index: <b>${aqi}</b> &middot; Feels like: <b>${heatIndexF}\u00b0F</b>.<br>` +
+      (cityKnown
+        ? `Using our walkability/bikeability estimate for ${profile.city}.`
+        : `We don't have specific walk/bike infrastructure data for "${profile.city}" — using a generic, moderately car-dependent estimate.`) +
+      ` Transit time is estimated (no free real-time transit API in this build).`;
+
+    document.getElementById('recCard').style.display = 'block';
+    document.getElementById('recTitle').innerHTML = "Take the <b>" + capitalize(bestMode) + "</b> today";
+    document.getElementById('recWhy').textContent = explainWhy(bestMode, results[bestMode], aqi, heatIndexF);
+    document.getElementById('recIcon').innerHTML = `<use href="${MODE_ICON[bestMode] || '#i-leaf'}"/>`;
+    document.getElementById('chipCO2').textContent = Math.max(0, results[bestMode].co2Saved).toFixed(1) + ' kg';
+    document.getElementById('chipTime').textContent = Math.round(results[bestMode].minutes) + ' min';
+    document.getElementById('chipHealth').textContent = results[bestMode].penalty < 2 ? 'Good' : (results[bestMode].penalty < 10 ? 'Fair' : 'Caution');
+
+    renderScoreTiles(results, bestMode, available);
+    document.getElementById('scorePanel').style.display = 'block';
+    renderMode(bestMode);
+  } catch (err) {
+    note.innerHTML = `<span style="color:var(--poor)">Couldn't get a recommendation: ${err.message}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Get today's recommendation";
+  }
+}
+
+function renderScoreTiles(results, bestMode, available) {
+  const totals = Object.values(results).map(r => r.total);
+  const maxTotal = Math.max(...totals, 1);
+  const minTotal = Math.min(...totals, 0);
+  const span = Math.max(maxTotal - minTotal, 1);
+  const norm = t => Math.round(Math.max(2, Math.min(100, ((t - minTotal) / span) * 90 + 10)));
+
+  const row = document.getElementById('scoreRow');
+  row.innerHTML = ['walk','bike','transit','drive'].map(mode => {
+    const r = results[mode];
+    const score = norm(r.total);
+    const isTop = mode === bestMode;
+    const isLow = !isTop && score < 45;
+    const isAvail = available[mode];
+    const tag = !isAvail ? 'Not available' : isTop ? 'Best choice' : score >= 55 ? 'Good option' : 'Higher trade-offs';
+    return `<button class="score-tile ${isTop?'top':''} ${isLow?'low':''}" data-mode="${mode}" style="${isAvail?'':'opacity:.5;'}">
+      <span class="num">${score}</span><span class="of100">/100</span>
+      <div class="mode-name">${capitalize(mode)}</div><span class="tag">${tag}</span>
+    </button>`;
+  }).join('');
+
+  document.querySelectorAll('.score-tile').forEach(tile=>{
+    tile.addEventListener('click', ()=> renderMode(tile.dataset.mode));
+  });
+}
+
+function logTrip(override) {
+  if (!currentRec) return;
+  const mode = override ? document.getElementById('overrideMode').value : currentRec.mode;
+  const r = currentRec.results[mode];
+  const co2Saved = Math.max(0, r.co2Saved);
+  const points = Math.round(co2Saved * 100); // POINTS FORMULA: 100 pts per kg CO2 saved vs. driving
+
+  const hist = loadHistory();
+  hist.push({
+    date: new Date().toISOString(),
+    mode, co2Saved, points,
+    distanceMiles: r.distanceMiles, minutes: r.minutes
+  });
+  saveHistory(hist);
+
+  renderImpact();
+  document.getElementById('recCard').style.display = 'none';
+  document.getElementById('overrideBox').style.display = 'none';
+}
+
+/* ============================================================
+   RENDER: sidebar impact (Today page)
+   ============================================================ */
+function renderImpact() {
+  const hist = loadHistory();
+  const totalCO2 = hist.reduce((s, t) => s + t.co2Saved, 0);
+  const totalPoints = hist.reduce((s, t) => s + t.points, 0);
+
+  document.getElementById('statCO2Side').textContent = totalCO2.toFixed(1) + ' kg';
+  document.getElementById('statPointsSide').textContent = totalPoints.toLocaleString() + ' pts';
+  document.getElementById('statTreesSide').textContent =
+    totalCO2 > 0 ? `That's like planting ${Math.max(1, Math.round(totalCO2 / 21))} tree${totalCO2/21>=1.5?'s':''}` : 'Log a trip to get started';
+  document.getElementById('barCO2Side').style.setProperty('--w', Math.min(100, totalCO2) + '%');
+  document.getElementById('barPointsSide').style.setProperty('--w', Math.min(100, totalPoints / 100) + '%');
+
+  renderLeaderboardData(totalPoints, 'lbSidePreview', true);
+}
+
+/* ============================================================
+   RENDER: Progress page
+   ============================================================ */
+function renderProgress() {
+  const hist = loadHistory();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const now = new Date();
+  const buckets = [0,0,0,0,0,0,0]; // Mon..Sun order for display
+  const order = [1,2,3,4,5,6,0]; // Mon-Sun
+
+  const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 6); sevenDaysAgo.setHours(0,0,0,0);
+  hist.forEach(t => {
+    const d = new Date(t.date);
+    if (d >= sevenDaysAgo) buckets[d.getDay()] += t.co2Saved;
+  });
+  const weekTotal = order.reduce((s, dow) => s + buckets[dow], 0);
+  const maxBucket = Math.max(...order.map(dow => buckets[dow]), 0.1);
+
+  document.getElementById('weekTotalLbl').textContent = weekTotal.toFixed(1) + ' kg total';
+  document.getElementById('chartRow').innerHTML = order.map(dow => {
+    const v = buckets[dow];
+    const h = Math.round((v / maxBucket) * 90 + (v > 0 ? 10 : 0));
+    const isTop = v === maxBucket && v > 0;
+    return `<div class="chart-bar ${isTop?'top':''}"><span style="--h:${h}%"></span><label>${days[dow]}</label></div>`;
+  }).join('');
+
+  // streak: consecutive days (ending today) with at least one trip that saved CO2
+  const daySet = new Set(hist.filter(t => t.co2Saved > 0).map(t => new Date(t.date).toDateString()));
+  let streak = 0;
+  let cursor = new Date();
+  while (daySet.has(cursor.toDateString())) { streak++; cursor.setDate(cursor.getDate() - 1); }
+
+  document.getElementById('streakChip').innerHTML = `<svg class="icon"><use href="#i-chart"/></svg>${streak}-day streak`;
+  document.getElementById('streakBig').textContent = streak + (streak === 1 ? ' day' : ' days');
+  document.getElementById('streakFoot').textContent = streak > 0
+    ? `Keep logging low-carbon trips to extend your streak`
+    : `Log a low-carbon trip today to start a streak`;
+  document.getElementById('streakBar').style.setProperty('--w', Math.min(100, streak * 14) + '%');
+  document.getElementById('tripsBig').textContent = hist.length;
+
+  animatePageBars(document.getElementById('page-progress'));
+}
+
+/* ============================================================
+   RENDER: Leaderboard (real "You" row; sample rows are clearly
+   labeled as local demo data since this build has no shared backend)
+   ============================================================ */
+const DEMO_COMPETITORS = [
+  { name: "Maya R.", points: 9250 }, { name: "Arjun S.", points: 8070 },
+  { name: "Priya K.", points: 7420 }, { name: "Diego M.", points: 6980 },
+  { name: "Sofia L.", points: 6110 }
+];
+
+function renderLeaderboardData(myPoints, targetId, compact) {
+  const myLabel = (profile && profile.shareName === false) ? 'Anonymous' : (currentUser ? currentUser.name.split(' ')[0] : 'You');
+  const rows = [...DEMO_COMPETITORS, { name: myLabel, points: myPoints, isMe: true }]
+    .sort((a,b) => b.points - a.points);
+  const list = compact ? rows.slice(0, 3) : rows;
+  document.getElementById(targetId).innerHTML = list.map((r, i) => {
+    const rank = rows.indexOf(r) + 1;
+    const initial = r.name === 'Anonymous' ? 'A' : r.name.charAt(0).toUpperCase();
+    return `<div class="lb-item ${r.isMe?'me':''}">
+      <span class="lb-rank">${rank}</span>
+      <span class="lb-avatar">${initial}</span>
+      <span class="lb-name">${r.isMe ? (r.name==='Anonymous'?'Anonymous (you)':r.name+' (you)') : r.name}</span>
+      <span class="lb-pts">${Math.round(r.points).toLocaleString()} pts</span>
+    </div>`;
+  }).join('');
+}
+
+function renderLeaderboard() {
+  const hist = loadHistory();
+  const totalPoints = hist.reduce((s, t) => s + t.points, 0);
+  renderLeaderboardData(totalPoints, 'lbFull', false);
+}
+
+/* ============================================================
+   RENDER: Rewards page
+   ============================================================ */
+function renderRewards() {
+  const hist = loadHistory();
+  const totalPoints = hist.reduce((s, t) => s + t.points, 0);
+  document.getElementById('rewardsPtsChip').innerHTML =
+    `<svg class="icon"><use href="#i-trophy"/></svg>${totalPoints.toLocaleString()} pts available`;
+  document.querySelectorAll('#rewardGrid .reward-card').forEach(card => {
+    const cost = Number(card.dataset.cost);
+    const btn = card.querySelector('.redeem-btn');
+    const canAfford = totalPoints >= cost;
+    card.classList.toggle('locked', !canAfford);
+    btn.disabled = !canAfford;
+    btn.textContent = canAfford ? 'Redeem' : 'Not enough pts';
+  });
+}
+
+/* ============================================================
+   RENDER: Profile page
+   ============================================================ */
+function renderProfile() {
+  if (!currentUser || !profile) return;
+  const hist = loadHistory();
+  const totalCO2 = hist.reduce((s, t) => s + t.co2Saved, 0);
+  const totalPoints = hist.reduce((s, t) => s + t.points, 0);
+  const rows = [...DEMO_COMPETITORS, { points: totalPoints, isMe: true }].sort((a,b)=>b.points-a.points);
+  const rank = rows.findIndex(r => r.isMe) + 1;
+
+  document.getElementById('profAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('profName').textContent = currentUser.name;
+  document.getElementById('profSub').textContent = 'Member since ' +
+    new Date(profile.savedAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  document.getElementById('profCO2').textContent = totalCO2.toFixed(1) + ' kg';
+  document.getElementById('profPoints').textContent = totalPoints.toLocaleString();
+  document.getElementById('profRank').textContent = '#' + rank;
+
+  document.getElementById('prefCity').textContent = profile.city || '—';
+  document.getElementById('prefBike').textContent = { none:'No bike', regular:'Regular bike', ebike:'E-bike' }[profile.bike];
+  document.getElementById('prefCar').textContent = profile.hasCar ? 'Yes' : 'No';
+  document.getElementById('prefTransit').textContent = profile.hasTransit ? 'Yes' : 'No';
+  document.getElementById('prefSens').textContent = profile.sensitivities.length
+    ? profile.sensitivities.map(s => s === 'airQuality' ? 'Air quality' : 'Heat').join(', ') : 'Nothing specific';
+  document.getElementById('prefTime').textContent = `Up to ${profile.timeTolMinutes} min extra`;
+  document.getElementById('prefShare').textContent = profile.shareName === false ? 'Hidden (Anonymous)' : 'Shown';
+}
+</script>
+
+</body>
+</html>
