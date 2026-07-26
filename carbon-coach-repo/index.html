@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Carbon Coach</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --sky: #eef3ee;
+    --paper: #f7f5ef;
+    --moss: #2f4a3a;
+    --moss-light: #4d6f57;
+    --leaf: #7fa876;
+    --clay: #b5652f;
+    --clay-light: #d98a55;
+    --ink: #23291f;
+    --line: #d8d4c6;
+    --bad: #b5462f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--sky);
+    color: var(--ink);
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+  }
+
+  .display { font-family: 'Palatino', 'Georgia', serif; font-weight: 700; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 36px 24px 80px; }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--moss);
+    padding-bottom: 14px;
+    margin-bottom: 28px;
+  }
+  header h1 { font-size: 30px; letter-spacing: -0.01em; margin: 0; color: var(--moss); }
+  header span { font-size: 13px; color: var(--moss-light); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  .headerRight { display: flex; align-items: center; gap: 14px; }
+  .profileChip {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--moss-light);
+  }
+  .profileChip img { width: 26px; height: 26px; border-radius: 50%; }
+  .profileChip a { color: var(--moss); text-decoration: underline; cursor: pointer; margin-left: 6px; }
+
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 22px 24px; margin-bottom: 22px; }
+  .card h2 {
+    font-size: 17px; margin: 0 0 14px; color: var(--moss);
+    font-family: 'Helvetica Neue', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+  }
+
+  label {
+    display: block; font-size: 12px; font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: var(--moss-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
+  }
+
+  input[type=text], input[type=number] {
+    width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 3px;
+    font-family: inherit; font-size: 15px; background: #fff; margin-bottom: 14px;
+  }
+
+  .row { display: flex; gap: 16px; }
+  .row > div { flex: 1; }
+
+  button {
+    background: var(--moss); color: #fff; border: none; padding: 11px 22px; border-radius: 3px;
+    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; text-transform: uppercase;
+    letter-spacing: 0.05em; cursor: pointer;
+  }
+  button:hover { background: var(--moss-light); }
+  button.secondary { background: transparent; color: var(--moss); border: 1px solid var(--moss); }
+  button.secondary:hover { background: #e6e9e0; }
+  button:disabled { opacity: 0.6; cursor: default; }
+
+  .rec { border-left: 4px solid var(--leaf); padding-left: 16px; }
+  .rec .mode { font-size: 24px; color: var(--moss); margin: 2px 0 6px; }
+  .rec .why { font-size: 14px; color: var(--ink); line-height: 1.5; }
+
+  table { width: 100%; border-collapse: collapse; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+  th { color: var(--moss-light); text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; }
+  tr.winner { background: #e9f0e5; }
+  tr.winner td:first-child { font-weight: 700; color: var(--moss); }
+  tr.unavailable { opacity: 0.45; }
+  .penalty { color: var(--bad); }
+  .bonus { color: var(--moss-light); }
+
+  .impact-grid { display: flex; gap: 24px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  .impact-grid .stat { flex: 1; border: 1px solid var(--line); border-radius: 3px; padding: 14px 16px; background: #fff; }
+  .impact-grid .stat .num { font-size: 26px; font-weight: 700; color: var(--clay); font-family: 'Palatino', 'Georgia', serif; }
+  .impact-grid .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--moss-light); margin-top: 2px; }
+
+  .log { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; color: var(--moss-light); max-height: 140px; overflow-y: auto; }
+  .log div { padding: 5px 0; border-bottom: 1px solid var(--line); }
+
+  .note {
+    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--moss-light);
+    background: #e9f0e5; border-radius: 3px; padding: 10px 12px; margin-top: 10px;
+  }
+
+  /* ---- Auth / setup screen ---- */
+  #authWrap { display: flex; align-items: center; justify-content: center; min-height: 90vh; }
+  .authCard {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 4px;
+    padding: 36px 32px; width: 100%; max-width: 360px; text-align: center; transition: max-width 0.2s ease;
+  }
+  .authCard.wide { max-width: 480px; text-align: left; }
+  .authCard h1 { font-size: 26px; margin: 0 0 4px; color: var(--moss); text-align: center; }
+  .authCard p.sub {
+    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; color: var(--moss-light);
+    text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 26px; text-align: center;
+  }
+  #gBtn { display: flex; justify-content: center; margin-bottom: 14px; }
+
+  #setup { display: none; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  #setup .miniProfile { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  #setup .miniProfile img { width: 36px; height: 36px; border-radius: 50%; }
+  #setup .miniProfile .name { font-weight: 700; color: var(--moss); font-size: 14px; }
+  #setup .miniProfile .email { font-size: 12px; color: var(--moss-light); }
+  #setup h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--moss); margin: 18px 0 8px; }
+  #setup h3:first-of-type { margin-top: 0; }
+  .optRow { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .optRow label {
+    display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); background: #fff;
+    border: 1px solid var(--line); border-radius: 20px; padding: 7px 12px; cursor: pointer;
+    text-transform: none; letter-spacing: normal; margin-bottom: 0;
+  }
+  .optRow input { margin: 0; accent-color: var(--moss); }
+  .optRow label:has(input:checked) { border-color: var(--moss); background: #e9f0e5; }
+  #setup .fieldHint { font-size: 11px; color: var(--moss-light); margin: 2px 0 0; }
+  #setup input[type=text] { margin-bottom: 4px; }
+  #setup button.primary { width: 100%; margin-top: 22px; padding: 12px; }
+  #setup .privacyNote { font-size: 11px; color: var(--moss-light); background: #e9f0e5; border-radius: 3px; padding: 10px 12px; margin-top: 16px; }
+  .msg { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--bad); margin-top: 12px; display: none; }
+</style>
+</head>
+<body>
+
+<!-- ============== SIGN IN + PROFILE SETUP ============== -->
+<div id="authWrap">
+  <div class="authCard" id="authCard">
+    <h1 class="display">Carbon Coach</h1>
+    <p class="sub">Sign in to continue</p>
+
+    <div id="gBtn"></div>
+
+    <form id="setup" onsubmit="saveProfile(event)">
+      <div class="miniProfile">
+        <img id="pfPic" src="" alt="">
+        <div>
+          <div class="name" id="pfName"></div>
+          <div class="email" id="pfEmail"></div>
+        </div>
+      </div>
+
+      <h3>What city are you based in?</h3>
+      <input type="text" id="cityInput" placeholder="e.g. Berkeley, CA" required>
+      <p class="fieldHint">Not every city is equally walkable or bikeable &mdash; we use this to adjust recommendations, and we'll say so plainly when we're just estimating.</p>
+
+      <h3>Do you have a bike?</h3>
+      <div class="optRow" id="bikeOpts">
+        <label><input type="radio" name="bike" value="none" checked> No bike</label>
+        <label><input type="radio" name="bike" value="regular"> Regular bike</label>
+        <label><input type="radio" name="bike" value="ebike"> E-bike</label>
+      </div>
+      <p class="fieldHint">If you don't have a bike, we won't recommend biking &mdash; even when it scores well.</p>
+
+      <h3>Do you have a car available to drive?</h3>
+      <div class="optRow">
+        <label><input type="radio" name="car" value="yes" checked> Yes</label>
+        <label><input type="radio" name="car" value="no"> No</label>
+      </div>
+
+      <h3>Public transit near you?</h3>
+      <div class="optRow">
+        <label><input type="radio" name="transit" value="yes" checked> Yes, it's an option</label>
+        <label><input type="radio" name="transit" value="no"> Not really</label>
+      </div>
+
+      <h3>Anything we should be cautious about?</h3>
+      <div class="optRow" id="sensOpts">
+        <label><input type="checkbox" name="sens" value="airQuality"> Prefer to avoid poor air quality</label>
+        <label><input type="checkbox" name="sens" value="heat"> Prefer to avoid heat</label>
+      </div>
+      <p class="fieldHint">Self-reported preference only &mdash; we use this to weigh recommendations, not to diagnose anything.</p>
+
+      <h3>Extra time you're OK with vs. driving</h3>
+      <div class="optRow">
+        <label><input type="radio" name="timeTol" value="10"> Up to 10 min</label>
+        <label><input type="radio" name="timeTol" value="20" checked> Up to 20 min</label>
+        <label><input type="radio" name="timeTol" value="40"> Up to 40 min</label>
+      </div>
+
+      <button type="submit" class="primary">Save & continue</button>
+
+      <div class="privacyNote">
+        This stays on your device only &mdash; it's not sent anywhere or
+        shared with employers, insurers, or anyone else.
+      </div>
+    </form>
+
+    <div class="msg" id="errMsg"></div>
+  </div>
+</div>
+
+<!-- ============== MAIN APP ============== -->
+<div class="wrap" id="appWrap" style="display:none;">
+
+  <header>
+    <h1 class="display">Carbon Coach</h1>
+    <div class="headerRight">
+      <span>Smart Coaching. Lower Carbon. Better Planet.</span>
+      <div class="profileChip">
+        <img id="chipPic" src="" alt="">
+        <span id="chipName"></span>
+        <a onclick="editProfile()">Edit profile</a>
+        <a onclick="signOut()">Sign out</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2>Today's Trip</h2>
+    <div class="row">
+      <div>
+        <label>Start (full street address)</label>
+        <input type="text" id="start" value="2199 Addison St, Berkeley, CA">
+      </div>
+      <div>
+        <label>Destination (full street address)</label>
+        <input type="text" id="end" value="1 Frank H Ogawa Plaza, Oakland, CA">
+      </div>
+    </div>
+    <div class="note" style="margin-bottom:14px;">
+      Use a real street address for each field &mdash; not a label like "Home" or "Office."
+      Words like that can get matched to an unrelated place with the same name.
+    </div>
+    <button onclick="getRecommendation()" id="recBtn">Get today's recommendation</button>
+    <div class="note" id="conditionsNote"></div>
+  </div>
+
+  <div class="card" id="recCard" style="display:none;">
+    <h2>Recommendation</h2>
+    <div class="rec">
+      <div class="mode display" id="recMode"></div>
+      <div class="why" id="recWhy"></div>
+    </div>
+    <div style="margin-top:18px;">
+      <table id="scoreTable"></table>
+    </div>
+    <div style="margin-top:18px;">
+      <button onclick="logTrip()" id="logBtn">I took this trip &mdash; log it</button>
+      <button class="secondary" onclick="document.getElementById('overrideBox').style.display='block'">
+        I chose a different mode
+      </button>
+      <div id="overrideBox" style="display:none; margin-top:12px;">
+        <label>Which mode did you actually take?</label>
+        <select id="overrideMode" style="padding:8px; border-radius:3px; border:1px solid var(--line);">
+          <option value="walk">Walk</option>
+          <option value="bike">Bike</option>
+          <option value="transit">Transit</option>
+          <option value="drive">Drive</option>
+        </select>
+        <button onclick="logTrip(true)" style="margin-left:8px;">Log this instead</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Your Impact</h2>
+    <div class="impact-grid">
+      <div class="stat"><div class="num" id="statCO2">0.0 kg</div><div class="lbl">CO2 saved, all time</div></div>
+      <div class="stat"><div class="num" id="statPoints">0</div><div class="lbl">Points</div></div>
+      <div class="stat"><div class="num" id="statTrips">0</div><div class="lbl">Trips logged</div></div>
+    </div>
+    <div style="margin-top:16px;">
+      <label>Trip log</label>
+      <div class="log" id="tripLog"><div>No trips logged yet.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   AUTH + PROFILE
+   ============================================================ */
+const GOOGLE_CLIENT_ID = "240764457745-80tnpb0egt46mpikbvqbm5etd7krubc6.apps.googleusercontent.com";
+
+let currentUser = null; // { name, email, picture }
+let profile = null;     // saved preferences, see saveProfile()
+
+function profileKey(email) { return 'carbonCoachProfile_' + email; }
+
+function handleCredentialResponse(response) {
+  try {
+    // Decoded client-side just to display who's signed in — not secure verification,
+    // fine for a prototype since nothing sensitive is gated behind it server-side.
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    currentUser = { name: payload.name, email: payload.email, picture: payload.picture };
+
+    document.getElementById('gBtn').style.display = 'none';
+    document.getElementById('authCard').classList.add('wide');
+    document.getElementById('pfPic').src = payload.picture;
+    document.getElementById('pfName').textContent = payload.name;
+    document.getElementById('pfEmail').textContent = payload.email;
+
+    const existing = localStorage.getItem(profileKey(payload.email));
+    if (existing) {
+      profile = JSON.parse(existing);
+      enterApp();
+    } else {
+      document.getElementById('setup').style.display = 'block';
+    }
+  } catch (e) {
+    const err = document.getElementById('errMsg');
+    err.textContent = "Sign-in failed to parse response.";
+    err.style.display = 'block';
+  }
+}
+
+function saveProfile(event) {
+  event.preventDefault();
+  if (!currentUser) return;
+  const form = event.target;
+  const sensBoxes = Array.from(form.querySelectorAll('input[name="sens"]:checked')).map(el => el.value);
+  const bike = form.querySelector('input[name="bike"]:checked').value;
+
+  profile = {
+    name: currentUser.name,
+    email: currentUser.email,
+    city: document.getElementById('cityInput').value.trim(),
+    bike: bike,                 // none / regular / ebike
+    hasCar: form.querySelector('input[name="car"]:checked').value === 'yes',
+    hasTransit: form.querySelector('input[name="transit"]:checked').value === 'yes',
+    sensitivities: sensBoxes,
+    timeTolMinutes: Number(form.querySelector('input[name="timeTol"]:checked').value),
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem(profileKey(currentUser.email), JSON.stringify(profile));
+  enterApp();
+}
+
+function editProfile() {
+  document.getElementById('appWrap').style.display = 'none';
+  document.getElementById('authWrap').style.display = 'flex';
+  document.getElementById('gBtn').style.display = 'none';
+  document.getElementById('authCard').classList.add('wide');
+
+  if (profile) {
+    document.getElementById('cityInput').value = profile.city || '';
+    document.querySelector(`input[name="bike"][value="${profile.bike}"]`).checked = true;
+    document.querySelector(`input[name="car"][value="${profile.hasCar ? 'yes' : 'no'}"]`).checked = true;
+    document.querySelector(`input[name="transit"][value="${profile.hasTransit ? 'yes' : 'no'}"]`).checked = true;
+    document.querySelector(`input[name="timeTol"][value="${profile.timeTolMinutes}"]`).checked = true;
+    document.querySelectorAll('input[name="sens"]').forEach(el => {
+      el.checked = profile.sensitivities.includes(el.value);
+    });
+  }
+  document.getElementById('setup').style.display = 'block';
+}
+
+function signOut() {
+  if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
+  currentUser = null;
+  profile = null;
+  document.getElementById('appWrap').style.display = 'none';
+  document.getElementById('authWrap').style.display = 'flex';
+  document.getElementById('authCard').classList.remove('wide');
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('gBtn').style.display = 'flex';
+}
+
+function enterApp() {
+  document.getElementById('authWrap').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'block';
+  document.getElementById('chipPic').src = currentUser.picture;
+  document.getElementById('chipName').textContent = currentUser.name.split(' ')[0];
+}
+
+window.onload = function () {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('gBtn'),
+    { theme: "outline", size: "large", shape: "pill" }
+  );
+};
+
+/* ============================================================
+   CITY WALKABILITY / BIKEABILITY
+   ------------------------------------------------------------
+   No real Walk Score API is wired in here, so this is a small,
+   honestly-labeled estimate rather than real per-city data.
+   1.0 = very walkable/bikeable infrastructure, lower = more
+   car-dependent (worse sidewalks/bike lanes, more effort/risk).
+   ============================================================ */
+const CITY_FRIENDLINESS = {
+  "berkeley": 1.0, "san francisco": 1.0, "oakland": 0.95, "new york": 1.0,
+  "portland": 1.0, "minneapolis": 0.95, "boston": 0.9, "seattle": 0.9,
+  "chicago": 0.85, "washington": 0.85, "philadelphia": 0.85,
+  "denver": 0.7, "austin": 0.6, "los angeles": 0.6, "san diego": 0.6,
+  "atlanta": 0.5, "dallas": 0.45, "houston": 0.4, "phoenix": 0.4, "detroit": 0.5
+};
+
+function getCityFriendliness(cityName) {
+  const key = (cityName || "").toLowerCase();
+  for (const known in CITY_FRIENDLINESS) {
+    if (key.includes(known)) return { score: CITY_FRIENDLINESS[known], known: true };
+  }
+  return { score: 0.65, known: false }; // honest default: treat as somewhat car-dependent, flagged as a guess
+}
+
+/* ============================================================
+   CARBON COACH — SCORING ENGINE
+   ------------------------------------------------------------
+   Live data sources:
+     - OpenRouteService: geocoding (address -> lat/lon) and
+       directions (walk / bike / drive routes).
+     - OpenWeatherMap: Air Pollution API + Weather API for the
+       trip's location.
+   NOTE: these keys are visible in this page's source since it's
+   a static client-side file with no backend. Fine for testing —
+   before a public launch, move these calls behind a small
+   server so the keys aren't exposed to visitors.
+   ============================================================ */
+
+const ORS_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjFjMmI1M2EzMGUzNDQwZWE5MWI5MTM4OGNhMTJiZTk4IiwiaCI6Im11cm11cjY0In0=";
+const OWM_KEY = "634f7f70f50b1a42729d19db1c868e0b";
+
+// Fixed emissions factors: kg CO2 per mile, by mode (walk/bike ~0, driving baseline)
+const EMISSIONS_KG_PER_MILE = { walk: 0, bike: 0, transit: 0.10, drive: 0.40 };
+
+// Turn a typed address into [lon, lat] using ORS geocoding.
+// boundary.country=US keeps it from matching unrelated places abroad
+// (e.g. "CA" getting read as Canada instead of California).
+async function geocode(address) {
+  const url = `https://api.openrouteservice.org/geocode/search?api_key=${ORS_KEY}` +
+              `&text=${encodeURIComponent(address)}&size=1&boundary.country=US`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Geocoding failed for "${address}"`);
+  const data = await res.json();
+  if (!data.features || !data.features.length) throw new Error(`Could not find location: "${address}"`);
+  const feature = data.features[0];
+  return { coord: feature.geometry.coordinates, label: feature.properties.label };
+}
+
+// One real route from ORS Directions for a given profile
+async function fetchRoute(profile_, startCoord, endCoord) {
+  const url = `https://api.openrouteservice.org/v2/directions/${profile_}?api_key=${ORS_KEY}` +
+              `&start=${startCoord[0]},${startCoord[1]}&end=${endCoord[0]},${endCoord[1]}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Routing failed for mode: ${profile_}`);
+  const data = await res.json();
+  const summary = data.features[0].properties.summary;
+  return { distanceMiles: summary.distance / 1609.34, minutes: summary.duration / 60 };
+}
+
+// Real routes for walk/bike/drive. ORS's free tier doesn't do public-transit routing,
+// so transit is estimated from the driving route. Bike profile picks 'cycling-electric'
+// if the user's profile says they have an e-bike, otherwise 'cycling-regular'.
+async function getRoutes(startCoord, endCoord) {
+  const bikeProfile = (profile && profile.bike === 'ebike') ? 'cycling-electric' : 'cycling-regular';
+  const [walk, bike, drive] = await Promise.all([
+    fetchRoute('foot-walking', startCoord, endCoord),
+    fetchRoute(bikeProfile, startCoord, endCoord),
+    fetchRoute('driving-car', startCoord, endCoord)
+  ]);
+  const transit = {
+    distanceMiles: drive.distanceMiles,
+    minutes: drive.minutes * 1.6 + 8,
+    estimated: true
+  };
+
+  // Apply the city walkability/bikeability estimate to walk & bike time —
+  // less friendly infrastructure means more real-world effort/time than the raw route implies.
+  const { score: friendliness } = getCityFriendliness(profile ? profile.city : "");
+  const frictionMultiplier = 1 + (1 - friendliness) * 0.5; // up to +50% time in a very car-dependent city
+  walk.minutes *= frictionMultiplier;
+  bike.minutes *= frictionMultiplier;
+
+  return { walk, bike, transit, drive };
+}
+
+// Real air quality + heat conditions from OpenWeatherMap, at the trip's start location
+async function getConditions(lat, lon) {
+  const [airRes, weatherRes] = await Promise.all([
+    fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${OWM_KEY}`),
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OWM_KEY}&units=imperial`)
+  ]);
+  if (!airRes.ok || !weatherRes.ok) throw new Error("Could not fetch live air quality / weather data.");
+  const airData = await airRes.json();
+  const weatherData = await weatherRes.json();
+  const owmAqi = airData.list[0].main.aqi;
+  const aqiMap = { 1: 25, 2: 75, 3: 125, 4: 175, 5: 250 };
+  const aqi = aqiMap[owmAqi] || 100;
+  const heatIndexF = Math.round(weatherData.main.feels_like);
+  return { aqi, heatIndexF };
+}
+
+// Health penalty: walk/bike get penalized when AQI is poor or heat is dangerous,
+// plus a small extra penalty in less bike/walk-friendly cities (worse infrastructure = more risk).
+function healthPenalty(mode, aqi, heatIndexF, friendliness) {
+  const outdoorExposure = { walk: 1.0, bike: 0.9, transit: 0.15, drive: 0.05 };
+  const exposure = outdoorExposure[mode];
+
+  let aqiPenalty = 0;
+  if (aqi > 100) aqiPenalty = (aqi - 100) * 0.25;
+  else if (aqi > 50) aqiPenalty = (aqi - 50) * 0.05;
+
+  let heatPenalty = 0;
+  if (heatIndexF > 90) heatPenalty = (heatIndexF - 90) * 1.5;
+  else if (heatIndexF > 80) heatPenalty = (heatIndexF - 80) * 0.3;
+
+  let infraPenalty = 0;
+  if (mode === 'walk' || mode === 'bike') infraPenalty = (1 - friendliness) * 10;
+
+  return (aqiPenalty + heatPenalty) * exposure + infraPenalty;
+}
+
+// Core scoring formula: score = co2_score + time_score - health_penalty
+// CO2/time are always compared against the driving route as the baseline.
+function scoreMode(mode, routes, aqi, heatIndexF, friendliness, timeTolMinutes) {
+  const driveDistance = routes.drive.distanceMiles;
+  const driveMinutes = routes.drive.minutes;
+  const modeMinutes = routes[mode].minutes;
+
+  const driveEmissions = driveDistance * EMISSIONS_KG_PER_MILE.drive;
+  const modeEmissions = driveDistance * EMISSIONS_KG_PER_MILE[mode];
+  const co2Saved = driveEmissions - modeEmissions;
+  const co2Score = co2Saved * 20;
+
+  const extraMinutes = Math.max(0, modeMinutes - driveMinutes);
+  const timeScore = timeTolMinutes - extraMinutes; // scaled to the user's stated time tolerance
+
+  const penalty = healthPenalty(mode, aqi, heatIndexF, friendliness);
+
+  const total = co2Score + timeScore - penalty;
+  return { co2Saved, co2Score, timeScore, penalty, total, minutes: modeMinutes, distanceMiles: routes[mode].distanceMiles };
+}
+
+function explainWhy(mode, breakdown, aqi, heatIndexF) {
+  const bits = [];
+  if (breakdown.co2Saved > 0) bits.push(`saves ${breakdown.co2Saved.toFixed(1)} kg of CO2 vs. driving`);
+  if (breakdown.penalty < 2) bits.push(`air quality, heat, and local infrastructure are fine for it today (AQI ${aqi}, ${heatIndexF}\u00b0F)`);
+  else bits.push(`it avoids most of today's air quality / heat / infrastructure downsides (AQI ${aqi}, ${heatIndexF}\u00b0F)`);
+  if (breakdown.timeScore > 0) bits.push(`it fits within the extra time you said you're OK with`);
+  return `Because it ${bits.join(", and ")}.`;
+}
+
+/* ============================================================
+   APP STATE + UI WIRING
+   ============================================================ */
+
+let impact = { co2: 0, points: 0, trips: 0, log: [] };
+let currentRec = null;
+
+function availableModes() {
+  return {
+    walk: true, // assumed available unless we add an accessibility question later
+    bike: profile.bike !== 'none',
+    transit: profile.hasTransit,
+    drive: profile.hasCar
+  };
+}
+
+async function getRecommendation() {
+  const startAddr = document.getElementById('start').value.trim();
+  const endAddr = document.getElementById('end').value.trim();
+  const btn = document.getElementById('recBtn');
+  const note = document.getElementById('conditionsNote');
+
+  btn.disabled = true;
+  btn.textContent = "Looking up route and conditions...";
+  note.innerHTML = "";
+  document.getElementById('recCard').style.display = 'none';
+
+  try {
+    const [startGeo, endGeo] = await Promise.all([geocode(startAddr), geocode(endAddr)]);
+    const routes = await getRoutes(startGeo.coord, endGeo.coord);
+    const { aqi, heatIndexF } = await getConditions(startGeo.coord[1], startGeo.coord[0]);
+    const { score: friendliness, known: cityKnown } = getCityFriendliness(profile.city);
+
+    const available = availableModes();
+    const results = {};
+    for (const mode of Object.keys(routes)) {
+      results[mode] = scoreMode(mode, routes, aqi, heatIndexF, friendliness, profile.timeTolMinutes);
+    }
+
+    const candidateModes = Object.keys(results).filter(m => available[m]);
+    if (candidateModes.length === 0) {
+      note.innerHTML = `<span style="color:var(--bad)">No transportation modes are marked as available in your profile. Update it to get a recommendation.</span>`;
+      return;
+    }
+    const bestMode = candidateModes.reduce((a, b) => results[a].total > results[b].total ? a : b);
+    currentRec = { mode: bestMode, results, routes, aqi, heatIndexF, available };
+
+    const driveMiles = routes.drive.distanceMiles;
+    const suspiciouslyFar = driveMiles > 100;
+
+    note.innerHTML =
+      `Resolved to: <b>${startGeo.label}</b> &rarr; <b>${endGeo.label}</b> (${driveMiles.toFixed(1)} mi apart by car).<br>` +
+      (suspiciouslyFar
+        ? `<span style="color:var(--bad)">That's much farther than a normal commute &mdash; one of your addresses probably matched the wrong place. Try adding a street number, city, and state.</span><br>`
+        : ``) +
+      `Air Quality Index: <b>${aqi}</b> &middot; Feels like: <b>${heatIndexF}\u00b0F</b>.<br>` +
+      (cityKnown
+        ? `Using our walkability/bikeability estimate for ${profile.city}.`
+        : `<span>We don't have specific walk/bike infrastructure data for "${profile.city}" &mdash; using a generic, moderately car-dependent estimate. This may not reflect local conditions perfectly.</span>`) +
+      ` Transit time is estimated (no free real-time transit API in this build).`;
+
+    document.getElementById('recCard').style.display = 'block';
+    document.getElementById('recMode').textContent = "Take the " + capitalize(bestMode) + " today";
+    document.getElementById('recWhy').textContent = explainWhy(bestMode, results[bestMode], aqi, heatIndexF);
+
+    renderScoreTable(results, bestMode, available);
+  } catch (err) {
+    note.innerHTML = `<span style="color:var(--bad)">Couldn't get a recommendation: ${err.message}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Get today's recommendation";
+  }
+}
+
+function renderScoreTable(results, bestMode, available) {
+  let html = `<tr><th>Mode</th><th>Distance</th><th>Time</th><th>CO2 saved</th><th>Health penalty</th><th>Score</th></tr>`;
+  for (const mode of ['walk','bike','transit','drive']) {
+    const r = results[mode];
+    const isWinner = mode === bestMode;
+    const isAvailable = available[mode];
+    html += `<tr class="${isWinner ? 'winner' : ''} ${isAvailable ? '' : 'unavailable'}">
+      <td>${capitalize(mode)}${isAvailable ? '' : ' (not available to you)'}</td>
+      <td>${r.distanceMiles.toFixed(1)} mi</td>
+      <td>${Math.round(r.minutes)} min</td>
+      <td class="bonus">${r.co2Saved.toFixed(1)} kg</td>
+      <td class="penalty">${r.penalty > 0 ? '-' + r.penalty.toFixed(1) : '0.0'}</td>
+      <td>${r.total.toFixed(1)}</td>
+    </tr>`;
+  }
+  document.getElementById('scoreTable').innerHTML = html;
+}
+
+function logTrip(override) {
+  if (!currentRec) return;
+  const mode = override ? document.getElementById('overrideMode').value : currentRec.mode;
+  const r = currentRec.results[mode];
+
+  impact.co2 += Math.max(0, r.co2Saved);
+  impact.points += Math.round(Math.max(0, r.co2Saved) * 100);
+  impact.trips += 1;
+  impact.log.unshift(`${capitalize(mode)} &middot; ${r.distanceMiles.toFixed(1)} mi &middot; +${Math.max(0, r.co2Saved).toFixed(1)} kg CO2 saved`);
+
+  renderImpact();
+  document.getElementById('recCard').style.display = 'none';
+  document.getElementById('overrideBox').style.display = 'none';
+}
+
+function renderImpact() {
+  document.getElementById('statCO2').textContent = impact.co2.toFixed(1) + ' kg';
+  document.getElementById('statPoints').textContent = impact.points;
+  document.getElementById('statTrips').textContent = impact.trips;
+  document.getElementById('tripLog').innerHTML = impact.log.length
+    ? impact.log.map(l => `<div>${l}</div>`).join('')
+    : '<div>No trips logged yet.</div>';
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+</script>
+
+</body>
+</html>
