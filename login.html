@@ -209,8 +209,7 @@
 </div>
 
 <script>
-  // ⚠️ Replace with your own OAuth Client ID from Google Cloud Console.
-  const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID = "240764457745-80tnpb0egt46mpikbvqbm5etd7krubc6.apps.googleusercontent.com";
 
   let currentUser = null; // { name, email, picture }
 
@@ -295,14 +294,8 @@
   }
 
   window.onload = function () {
-    if (GOOGLE_CLIENT_ID.startsWith("YOUR_")) {
-      document.getElementById('errMsg').textContent =
-        "No Client ID configured yet — see setup steps.";
-      document.getElementById('errMsg').style.display = 'block';
-      return;
-    }
     google.accounts.id.initialize({
-      client_id: = "240764457745-80tnpb0egt46mpikbvqbm5etd7krubc6.apps.googleusercontent.com",
+      client_id: GOOGLE_CLIENT_ID,
       callback: handleCredentialResponse
     });
     google.accounts.id.renderButton(
