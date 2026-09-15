@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <title>Carbon Coach</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --sky: #eef3ee;
@@ -16,6 +19,8 @@
     --ink: #23291f;
     --line: #d8d4c6;
     --bad: #b5462f;
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Inter', sans-serif;
   }
 
   * { box-sizing: border-box; }
@@ -24,10 +29,11 @@
     margin: 0;
     background: var(--sky);
     color: var(--ink);
-    font-family: 'Iowan Old Style', 'Georgia', serif;
+    font-family: var(--body);
+    -webkit-font-smoothing: antialiased;
   }
 
-  .display { font-family: 'Palatino', 'Georgia', serif; font-weight: 700; }
+  .display { font-family: var(--display); font-weight: 700; }
 
   .wrap { max-width: 900px; margin: 0 auto; padding: 36px 24px 80px; }
 
@@ -39,12 +45,12 @@
     padding-bottom: 14px;
     margin-bottom: 28px;
   }
-  header h1 { font-size: 30px; letter-spacing: -0.01em; margin: 0; color: var(--moss); }
-  header span { font-size: 13px; color: var(--moss-light); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  header h1 { font-family: var(--display); font-weight: 700; font-size: 30px; letter-spacing: -0.01em; margin: 0; color: var(--moss); }
+  header span { font-size: 13px; color: var(--moss-light); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--body); }
   .headerRight { display: flex; align-items: center; gap: 14px; }
   .profileChip {
     display: flex; align-items: center; gap: 8px;
-    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--moss-light);
+    font-family: var(--body); font-size: 12px; color: var(--moss-light);
   }
   .profileChip img { width: 26px; height: 26px; border-radius: 50%; }
   .profileChip a { color: var(--moss); text-decoration: underline; cursor: pointer; margin-left: 6px; }
@@ -52,11 +58,11 @@
   .card { background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 22px 24px; margin-bottom: 22px; }
   .card h2 {
     font-size: 17px; margin: 0 0 14px; color: var(--moss);
-    font-family: 'Helvetica Neue', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+    font-family: var(--display); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
   }
 
   label {
-    display: block; font-size: 12px; font-family: 'Helvetica Neue', Arial, sans-serif;
+    display: block; font-size: 12px; font-family: var(--body);
     color: var(--moss-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
   }
 
@@ -70,7 +76,7 @@
 
   button {
     background: var(--moss); color: #fff; border: none; padding: 11px 22px; border-radius: 3px;
-    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; text-transform: uppercase;
+    font-family: var(--body); font-size: 13px; text-transform: uppercase;
     letter-spacing: 0.05em; cursor: pointer;
   }
   button:hover { background: var(--moss-light); }
@@ -79,10 +85,10 @@
   button:disabled { opacity: 0.6; cursor: default; }
 
   .rec { border-left: 4px solid var(--leaf); padding-left: 16px; }
-  .rec .mode { font-size: 24px; color: var(--moss); margin: 2px 0 6px; }
+  .rec .mode { font-family: var(--display); font-weight: 700; font-size: 24px; color: var(--moss); margin: 2px 0 6px; }
   .rec .why { font-size: 14px; color: var(--ink); line-height: 1.5; }
 
-  table { width: 100%; border-collapse: collapse; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-family: var(--body); font-size: 13px; }
   th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
   th { color: var(--moss-light); text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; }
   tr.winner { background: #e9f0e5; }
@@ -91,16 +97,16 @@
   .penalty { color: var(--bad); }
   .bonus { color: var(--moss-light); }
 
-  .impact-grid { display: flex; gap: 24px; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  .impact-grid { display: flex; gap: 24px; font-family: var(--body); }
   .impact-grid .stat { flex: 1; border: 1px solid var(--line); border-radius: 3px; padding: 14px 16px; background: #fff; }
-  .impact-grid .stat .num { font-size: 26px; font-weight: 700; color: var(--clay); font-family: 'Palatino', 'Georgia', serif; }
+  .impact-grid .stat .num { font-size: 26px; font-weight: 700; color: var(--clay); font-family: var(--display); }
   .impact-grid .stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--moss-light); margin-top: 2px; }
 
-  .log { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; color: var(--moss-light); max-height: 140px; overflow-y: auto; }
+  .log { font-family: var(--body); font-size: 13px; color: var(--moss-light); max-height: 140px; overflow-y: auto; }
   .log div { padding: 5px 0; border-bottom: 1px solid var(--line); }
 
   .note {
-    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--moss-light);
+    font-family: var(--body); font-size: 12px; color: var(--moss-light);
     background: #e9f0e5; border-radius: 3px; padding: 10px 12px; margin-top: 10px;
   }
 
@@ -111,17 +117,17 @@
     padding: 36px 32px; width: 100%; max-width: 360px; text-align: center; transition: max-width 0.2s ease;
   }
   .authCard.wide { max-width: 480px; text-align: left; }
-  .authCard h1 { font-size: 26px; margin: 0 0 4px; color: var(--moss); text-align: center; }
+  .authCard h1 { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: -0.01em; margin: 0 0 4px; color: var(--moss); text-align: center; }
   .authCard p.sub {
-    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; color: var(--moss-light);
+    font-family: var(--body); font-size: 13px; color: var(--moss-light);
     text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 26px; text-align: center;
   }
   #gBtn { display: flex; justify-content: center; margin-bottom: 14px; }
 
-  #setup { display: none; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  #setup { display: none; font-family: var(--body); }
   #setup .miniProfile { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
   #setup .miniProfile img { width: 36px; height: 36px; border-radius: 50%; }
-  #setup .miniProfile .name { font-weight: 700; color: var(--moss); font-size: 14px; }
+  #setup .miniProfile .name { font-family: var(--display); font-weight: 700; color: var(--moss); font-size: 14px; }
   #setup .miniProfile .email { font-size: 12px; color: var(--moss-light); }
   #setup h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--moss); margin: 18px 0 8px; }
   #setup h3:first-of-type { margin-top: 0; }
@@ -137,7 +143,7 @@
   #setup input[type=text] { margin-bottom: 4px; }
   #setup button.primary { width: 100%; margin-top: 22px; padding: 12px; }
   #setup .privacyNote { font-size: 11px; color: var(--moss-light); background: #e9f0e5; border-radius: 3px; padding: 10px 12px; margin-top: 16px; }
-  .msg { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: var(--bad); margin-top: 12px; display: none; }
+  .msg { font-family: var(--body); font-size: 12px; color: var(--bad); margin-top: 12px; display: none; }
 </style>
 </head>
 <body>

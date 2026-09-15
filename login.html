@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <title>Carbon Coach — Sign In</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --sky: #eef3ee;
@@ -13,6 +16,8 @@
     --ink: #23291f;
     --line: #d8d4c6;
     --bad: #b5462f;
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Inter', sans-serif;
   }
   * { box-sizing: border-box; }
   body {
@@ -23,7 +28,8 @@
     justify-content: center;
     background: var(--sky);
     color: var(--ink);
-    font-family: 'Iowan Old Style', 'Georgia', serif;
+    font-family: var(--body);
+    -webkit-font-smoothing: antialiased;
   }
   .card {
     background: var(--paper);
@@ -37,7 +43,7 @@
   }
   .card.wide { max-width: 460px; }
 
-  #setup { display: none; text-align: left; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  #setup { display: none; text-align: left; font-family: var(--body); }
   #setup .miniProfile {
     display: flex;
     align-items: center;
@@ -47,7 +53,7 @@
     border-bottom: 1px solid var(--line);
   }
   #setup .miniProfile img { width: 36px; height: 36px; border-radius: 50%; }
-  #setup .miniProfile .name { font-weight: 700; color: var(--moss); font-size: 14px; }
+  #setup .miniProfile .name { font-family: var(--display); font-weight: 700; color: var(--moss); font-size: 14px; }
   #setup .miniProfile .email { font-size: 12px; color: var(--moss-light); }
   #setup h3 {
     font-size: 12px;
@@ -95,19 +101,22 @@
   }
   #savedMsg {
     display: none;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--body);
     font-size: 13px;
     color: var(--moss);
     text-align: center;
   }
   #savedMsg .big { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
   h1 {
+    font-family: var(--display);
+    font-weight: 700;
     font-size: 26px;
+    letter-spacing: -0.01em;
     margin: 0 0 4px;
     color: var(--moss);
   }
   p.sub {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--body);
     font-size: 13px;
     color: var(--moss-light);
     text-transform: uppercase;
@@ -115,19 +124,19 @@
     margin: 0 0 26px;
   }
   #gBtn { display: flex; justify-content: center; margin-bottom: 14px; }
-  #profile { display: none; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  #profile { display: none; font-family: var(--body); }
   #profile img { width: 56px; height: 56px; border-radius: 50%; margin-bottom: 10px; }
   #profile .name { font-weight: 700; color: var(--moss); font-size: 16px; }
   #profile .email { font-size: 13px; color: var(--moss-light); margin-bottom: 16px; }
   .msg {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--body);
     font-size: 12px;
     color: var(--bad);
     margin-top: 12px;
     display: none;
   }
   .note {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: var(--body);
     font-size: 11px;
     color: var(--moss-light);
     background: #e9f0e5;
@@ -196,8 +205,8 @@
   <div id="savedMsg">
     <div class="big">You're all set, <span id="savedName"></span> 🌱</div>
     Your preferences are saved on this device.
-    <button type="button" onclick="editProfile()" style="margin-top:14px;background:transparent;border:1px solid var(--moss);color:var(--moss);padding:8px 16px;border-radius:3px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;cursor:pointer;">Edit preferences</button>
-    <button type="button" onclick="signOut()" style="margin-top:14px;margin-left:8px;background:transparent;border:1px solid var(--line);color:var(--moss-light);padding:8px 16px;border-radius:3px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;cursor:pointer;">Sign out</button>
+    <button type="button" onclick="editProfile()" style="margin-top:14px;background:transparent;border:1px solid var(--moss);color:var(--moss);padding:8px 16px;border-radius:3px;font-family:var(--body);font-size:12px;cursor:pointer;">Edit preferences</button>
+    <button type="button" onclick="signOut()" style="margin-top:14px;margin-left:8px;background:transparent;border:1px solid var(--line);color:var(--moss-light);padding:8px 16px;border-radius:3px;font-family:var(--body);font-size:12px;cursor:pointer;">Sign out</button>
   </div>
 
   <div class="msg" id="errMsg"></div>
